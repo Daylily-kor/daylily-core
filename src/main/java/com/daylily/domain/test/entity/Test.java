@@ -18,6 +18,6 @@ public class Test extends BaseEntity {
 
     private String name;
 
-    @With
+    @Setter
     private String description;
 }

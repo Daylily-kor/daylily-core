@@ -9,6 +9,7 @@ import com.daylily.global.response.code.SuccessCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,6 +29,7 @@ public class TestController {
         return SuccessResponse.of(SuccessCode.OK, testResponse);
     }
 
+    @Transactional
     @PostMapping
     public ResponseEntity<SuccessResponse<Void>> createTest(
             @Valid @RequestBody TestRequest testRequest
@@ -36,6 +38,7 @@ public class TestController {
         return SuccessResponse.of(SuccessCode.CREATED);
     }
 
+    @Transactional
     @PutMapping("/{id}/description")
     public ResponseEntity<SuccessResponse<Void>> updateTestDescription(
             @PathVariable("id") Long id,
@@ -43,8 +46,7 @@ public class TestController {
     ) {
         Test test = testRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("[id: " + id + "] not found"));
-
-        testRepository.save(test.withDescription(description));
+        test.setDescription(description);
         return SuccessResponse.of(SuccessCode.NO_CONTENT);
     }
 }
