@@ -35,9 +35,8 @@ dependencies {
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-    // SQLite + JPA
-    implementation("org.xerial:sqlite-jdbc:3.50.2.0")
-    implementation("org.hibernate.orm:hibernate-community-dialects:7.0.6.Final")
+    // PostgreSQL + JPA
+    implementation("org.postgresql:postgresql:42.7.7")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
     // Lombok

@@ -1,0 +1,23 @@
+name: daylily-dev
+
+services:
+  # PostgreSQL database
+  db:
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    restart: always
+    shm_size: 128mb
+    environment:
+      - POSTGRES_USER=daylily
+      - POSTGRES_PASSWORD=daylily
+      - POSTGRES_DB=daylily-db
+
+  # Tool for managing the database
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
