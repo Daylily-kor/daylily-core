@@ -4,13 +4,15 @@ services:
   # PostgreSQL database
   db:
     image: postgres:alpine
+    volumes:
+      - db_data_dev:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     restart: always
     shm_size: 128mb
     environment:
-      - POSTGRES_USER=daylily
-      - POSTGRES_PASSWORD=daylily
+      - POSTGRES_USER=${DAYLILY_DB_USER:?error}
+      - POSTGRES_PASSWORD=${DAYLILY_DB_PASSWORD:?error}
       - POSTGRES_DB=daylily-db
 
   # Tool for managing the database
@@ -21,3 +23,6 @@ services:
       - "8081:8080"
     depends_on:
       - db
+
+volumes:
+    db_data_dev:
