@@ -1,0 +1,31 @@
+name: daylily-prod
+
+services:
+  core:
+    image: nyhryan/daylily-core
+    ports:
+      - "8080:8080"
+    environment:
+      - DAYLILY_DB_URL=jdbc:postgresql://db:5432/daylily-db
+
+      # TODO: Secret으로 변경해야하는지 잘 모르겠음.
+      - DAYLILY_DB_USER=daylily
+      - DAYLILY_DB_PASSWORD=daylily
+    depends_on:
+      - db
+
+  # PostgreSQL database
+  db:
+    image: postgres:alpine
+    volumes:
+        - db_data:/var/lib/postgresql/data
+    restart: always
+    shm_size: 128mb
+    environment:
+      # TODO: Secret으로 변경해야하는지 잘 모르겠음.
+      - POSTGRES_USER=daylily
+      - POSTGRES_PASSWORD=daylily
+      - POSTGRES_DB=daylily-db
+
+volumes:
+  db_data:
