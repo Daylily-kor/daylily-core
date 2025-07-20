@@ -7,10 +7,8 @@ services:
       - "8080:8080"
     environment:
       - DAYLILY_DB_URL=jdbc:postgresql://db:5432/daylily-db
-
-      # TODO: Secret으로 변경해야하는지 잘 모르겠음.
-      - DAYLILY_DB_USER=daylily
-      - DAYLILY_DB_PASSWORD=daylily
+      - DAYLILY_DB_USER=${DAYLILY_DB_USER:?error}
+      - DAYLILY_DB_PASSWORD=${DAYLILY_DB_PASSWORD:?error}
     depends_on:
       - db
 
@@ -22,9 +20,8 @@ services:
     restart: always
     shm_size: 128mb
     environment:
-      # TODO: Secret으로 변경해야하는지 잘 모르겠음.
-      - POSTGRES_USER=daylily
-      - POSTGRES_PASSWORD=daylily
+      - POSTGRES_USER=${DAYLILY_DB_USER:?error}
+      - POSTGRES_PASSWORD=${DAYLILY_DB_PASSWORD:?error}
       - POSTGRES_DB=daylily-db
 
 volumes:
