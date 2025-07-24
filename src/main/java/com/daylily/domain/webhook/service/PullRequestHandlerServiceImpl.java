@@ -43,7 +43,7 @@ public class PullRequestHandlerServiceImpl implements PullRequestHandlerService 
 
         // 4. 빌드된 이미지로 컨테이너 실행
         var commitSHA = pullRequest.getHead().getSha().substring(0, 8);
-        var containerName = "pr-%s-%s".formatted(buildResp.getImageName(), commitSHA);
+        var containerName = "pr-%s-%s".formatted(pullRequest.getRepository().getName(), commitSHA);
         RunResponse runResp = dockerGrpcClient.runContainer(buildResp.getImageId(), containerName);
         log.debug("Successfully started container: {}", runResp.toString());
     }
