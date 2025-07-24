@@ -32,9 +32,9 @@ public record SuccessResponse<T>(
                 new SuccessResponse<>(
                         true,
                         OffsetDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
-                        code.getStatus(),
-                        code.getCode(),
-                        code.getMessage(),
+                        code.status(),
+                        code.code(),
+                        code.message(),
                         data
                 )
         );
