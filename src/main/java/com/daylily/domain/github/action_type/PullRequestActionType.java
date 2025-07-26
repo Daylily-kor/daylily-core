@@ -1,5 +1,9 @@
 package com.daylily.domain.github.action_type;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /**
  * <a href="https://docs.github.com/en/webhooks/webhook-events-and-payloads#pull_request">Webhook events &amp; payloads</a>에 따른 Action Type들
  */
@@ -28,10 +32,17 @@ public enum PullRequestActionType {
     UNLOCKED("unlocked")
     ;
 
+    private static final Map<String, PullRequestActionType> ACTION_MAP =
+            Arrays.stream(values())
+                    .collect(Collectors.toMap(
+                            type -> type.action.toLowerCase(),
+                            type -> type
+                    ));
+
     private final String action;
 
     PullRequestActionType(String action) {
-        this.action = action;
+        this.action = action.toLowerCase(); // 소문자 확실하게
     }
 
     /**
@@ -41,11 +52,10 @@ public enum PullRequestActionType {
      * @throws IllegalArgumentException 공식 API에 정의되지 않은 Action Type 문자열이 들어올 경우 IllegalArgumentException을 발생
      */
     public static PullRequestActionType fromString(String action) {
-        for (var type : PullRequestActionType.values()) {
-            if (type.action.equalsIgnoreCase(action)) {
-                return type;
-            }
+        var result = ACTION_MAP.get(action.toLowerCase());
+        if (result == null) {
+            throw new IllegalArgumentException("Unknown pull request action type: " + action);
         }
-        throw new IllegalArgumentException("Unknown pull request action type: " + action);
+        return result;
     }
 }

@@ -3,13 +3,16 @@ package com.daylily.domain.webhook.service;
 import com.daylily.domain.docker.client.DockerGrpcClient;
 import com.daylily.domain.github.action_type.PullRequestActionType;
 import com.daylily.domain.webhook.util.PayloadParser;
-import com.daylily.proto.build.ImageBuildResponse;
-import com.daylily.proto.run.RunResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kohsuke.github.GHEventPayload;
 import org.kohsuke.github.GHPullRequest;
 import org.springframework.stereotype.Service;
+
+import static com.daylily.domain.docker.dto.GrpcRequest.BuildImageRequest;
+import static com.daylily.domain.docker.dto.GrpcRequest.RunContainerRequest;
+import static com.daylily.domain.docker.dto.GrpcResponse.BuildImageResponse;
+import static com.daylily.domain.docker.dto.GrpcResponse.RunContainerResponse;
 
 @Slf4j
 @Service
@@ -38,13 +41,21 @@ public class PullRequestHandlerServiceImpl implements PullRequestHandlerService 
         }
 
         // 3. Docker gRPC 클라이언트로 이미지 빌드
-        ImageBuildResponse buildResp = dockerGrpcClient.buildImageFromPullRequest(pullRequest);
+        BuildImageResponse buildResp = dockerGrpcClient.buildImage(
+                new BuildImageRequest(pullRequest)
+        );
         log.debug("Successfully build image: {}", buildResp.toString());
 
         // 4. 빌드된 이미지로 컨테이너 실행
         var commitSHA = pullRequest.getHead().getSha().substring(0, 8);
         var containerName = "pr-%s-%s".formatted(pullRequest.getRepository().getName(), commitSHA);
-        RunResponse runResp = dockerGrpcClient.runContainer(buildResp.getImageId(), containerName);
+
+        RunContainerResponse runResp = dockerGrpcClient.runContainer(
+                RunContainerRequest.builder()
+                        .imageId(buildResp.imageId())
+                        .containerName(containerName)
+                        .build()
+        );
         log.debug("Successfully started container: {}", runResp.toString());
     }
 }

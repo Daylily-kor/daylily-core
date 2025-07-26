@@ -1,28 +1,38 @@
 package com.daylily.domain.docker.dto;
 
-import com.daylily.proto.build.ImageBuildRequest;
-import com.daylily.proto.version.VersionResponse;
-import org.kohsuke.github.GHPullRequest;
+import com.daylily.domain.docker.dto.GrpcResponse.BuildImageResponse;
+import com.daylily.proto.build.GrpcImageBuildRequest;
+import com.daylily.proto.build.GrpcImageBuildResponse;
+import com.daylily.proto.run.GrpcContainerRunRequest;
+import com.daylily.proto.run.GrpcContainerRunResponse;
+import com.daylily.proto.version.GrpcDockerVersionResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper
+import static com.daylily.domain.docker.dto.GrpcRequest.*;
+
+
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
+)
 public interface DockerMapper {
 
-    DockerMapper INSTANCE = Mappers.getMapper(DockerMapper.class);
-    
-    ResponseDockerVersion toResponseDockerVersion(VersionResponse protoVersionResponse);
+    GrpcResponse.DockerVersionResponse toResponseDockerVersion(GrpcDockerVersionResponse protoVersionResponse);
 
-    /**
-     * GHPullRequest 객체를 ImageBuildRequest로 변환합니다. <br/>
-     * 저장소 이름, 브랜치, PR 번호, SHA를 포함합니다.
-     * @param pr GHPullRequest 객체
-     * @return ImageBuildRequest 객체
-     */
-    @Mapping(target = "repositoryName", source = "pr.repository.fullName")
-    @Mapping(target = "ref",            source = "pr.head.ref")
-    @Mapping(target = "prNumber",       source = "pr.number")
-    @Mapping(target = "sha",            source = "pr.head.sha")
-    ImageBuildRequest toImageBuildRequest(GHPullRequest pr);
+    @Mapping(target = "repositoryName", source = "pullRequest.repository.fullName")
+    @Mapping(target = "ref",            source = "pullRequest.head.ref")
+    @Mapping(target = "prNumber",       source = "pullRequest.number")
+    @Mapping(target = "sha",            source = "pullRequest.head.sha")
+    GrpcImageBuildRequest toImageBuildRequest(BuildImageRequest request);
+
+    // 아래에 사용된 record들은 protobuf 파일로부터 컴파일된 Java 클래스의 필드명과 동일하여 수동 @Mapping이 필요하지 않습니다.
+
+    BuildImageResponse toImageBuildResponse(GrpcImageBuildResponse response);
+
+    GrpcContainerRunRequest toRunRequest(RunContainerRequest request);
+
+    GrpcResponse.RunContainerResponse toRunContainerResponse(GrpcContainerRunResponse response);
 }

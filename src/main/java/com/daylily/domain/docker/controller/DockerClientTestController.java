@@ -1,17 +1,13 @@
 package com.daylily.domain.docker.controller;
 
+import com.daylily.domain.docker.client.DockerGrpcClient;
+import com.daylily.domain.docker.dto.GrpcResponse.DockerVersionResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.daylily.proto.version.VersionResponse;
-import com.daylily.domain.docker.client.DockerGrpcClient;
-import com.daylily.domain.docker.dto.DockerMapper;
-import com.daylily.domain.docker.dto.ResponseDockerVersion;
-
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/docker/test")
@@ -22,8 +18,8 @@ public class DockerClientTestController {
     private final DockerGrpcClient clientService;
 
     @GetMapping("/version")
-    public ResponseEntity<ResponseDockerVersion> getDockerVersion() {
-        VersionResponse resp = clientService.getVersion();
-        return ResponseEntity.ok(DockerMapper.INSTANCE.toResponseDockerVersion(resp));
+    public ResponseEntity<DockerVersionResponse> getDockerVersion() {
+        DockerVersionResponse resp = clientService.getVersion();
+        return ResponseEntity.ok(resp);
     }
 }
