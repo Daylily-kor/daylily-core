@@ -65,6 +65,7 @@ dependencies {
     // MapStruct
     implementation("org.mapstruct:mapstruct:1.6.3")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
+    implementation("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 
     // OpenAPI and Swagger UI
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
