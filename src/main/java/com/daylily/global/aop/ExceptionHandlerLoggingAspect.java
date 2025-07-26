@@ -19,7 +19,8 @@ public class ExceptionHandlerLoggingAspect {
     public void logExceptionHandler(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
         if (args.length > 0 && args[0] instanceof Exception ex) {
-            log.error("😱 {} occurred 😱: {}", ex.getClass().getSimpleName(), ex.getMessage(), ex);
+            log.error(">>> Exception: {}", ex.getClass().getSimpleName());
+            log.error(">>> Message: {}", ex.getMessage(), ex);
         }
     }
 }

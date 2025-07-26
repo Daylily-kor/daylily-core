@@ -1,0 +1,3 @@
+[submodule "daylily-grpc-server"]
+	path = daylily-grpc-server
+	url = git@github.com:Daylily-kor/daylily-grpc-server.git

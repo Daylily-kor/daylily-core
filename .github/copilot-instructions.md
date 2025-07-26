@@ -5,9 +5,26 @@ Spring Boot service that spins up short-lived preview containers for each GitHub
 ## Project Overview
 
 - Receives **pull-request webhooks** from customer repositories.  
-- Builds a Docker image from the PR branch, runs it, and exposes it through **Traefik**.  
+- Builds a Docker image from the PR branch, runs it, and exposes it through **Traefik**.
+- Interacts with `daylily-grpc-server` Go gRPC server in order to 
+  - Build the Docker image.
+  - Start the container with the built image.
+  - Stop and remove the container when the PR is closed or merged.
 - Posts the preview URL back to the PR via GitHub REST API.  
 - Stores build metadata in **PostgreSQL** and coordinates background work through **JMS**.
+
+## Languages, Frameworks, and Tools
+
+- Java
+    - Spring Boot version 3
+    - Spring Data JPA
+    - Spring gRPC
+- Go
+    - gRPC
+    - Protobuf
+- PostgreSQL
+- Docker
+- Traefik
 
 ## Coding Standards
 

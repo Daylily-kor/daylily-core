@@ -24,5 +24,23 @@ services:
     depends_on:
       - db
 
+  # traefik
+  traefik:
+    image: traefik:v3.4
+    command:
+      - "--providers.docker=true"
+      - "--api.insecure=true"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+    ports:
+      - "8082:80"
+      - "8083:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
 volumes:
     db_data_dev:
+
+networks:
+  default:
+    name: daylily-dev

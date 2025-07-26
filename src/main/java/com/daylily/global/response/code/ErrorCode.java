@@ -1,10 +1,8 @@
 package com.daylily.global.response.code;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-@Getter
 @AllArgsConstructor
 public enum ErrorCode implements BaseCode {
 
@@ -24,7 +22,17 @@ public enum ErrorCode implements BaseCode {
     private final HttpStatus httpStatus;
 
     @Override
-    public int getStatus() {
+    public String code() {
+        return code;
+    }
+
+    @Override
+    public String message() {
+        return message;
+    }
+
+    @Override
+    public int status() {
         return httpStatus.value();
     }
 }
