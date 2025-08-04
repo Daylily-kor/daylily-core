@@ -1,9 +1,14 @@
 package com.daylily.domain.github.repository;
 
-import com.daylily.domain.github.entity.GitHubAppSecret;
+import com.daylily.domain.github.entity.GitHubApp;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
-public interface GitHubAppRepository extends JpaRepository<GitHubAppSecret, Long> {
+public interface GitHubAppRepository extends JpaRepository<GitHubApp, Long> {
+
+    Optional<GitHubApp> findTopByOrderByIdAsc();
+    Optional<GitHubApp> findByAppId(Long appId);
 }

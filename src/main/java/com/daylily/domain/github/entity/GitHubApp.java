@@ -5,12 +5,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "github_app_secret")
+@Table(name = "github_app")
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class GitHubAppSecret {
+public class GitHubApp {
     @Id
     private Long id;
 
@@ -25,6 +25,8 @@ public class GitHubAppSecret {
     @Lob
     @Convert(converter = AesGcmStringConverter.class)
     private String pem;
+
+    private Long appId;
 
     @Setter
     private Long installationId;
