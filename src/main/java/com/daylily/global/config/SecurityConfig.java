@@ -1,6 +1,9 @@
 package com.daylily.global.config;
 
+import com.daylily.domain.auth.handler.OAuth2AuthenticationSuccessHandler;
+import com.daylily.domain.auth.service.UserService;
 import com.daylily.global.exception.CustomAccessDeniedHandler;
+import com.daylily.global.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +18,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
+
     private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final UserService userService;
+    private final JwtProvider jwtProvider;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -31,10 +37,19 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authz ->
-                        authz.anyRequest().permitAll() // TODO: 차후 인증 및 권한 설정 필요
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/error").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth -> oauth
+                        .successHandler(oAuth2AuthenticationSuccessHandler()) // JSON 응답 전용
                 )
                 .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
                 .build();
+    }
+    @Bean
+    public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
+
+        return new OAuth2AuthenticationSuccessHandler(userService, jwtProvider);
     }
 }
