@@ -31,14 +31,14 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         // 1-2 DB 저장 또는 조회
         User user = userService.processOAuth2User(oAuth2User);
         // 2.  JWT 생성
-        String accessToken = jwtProvider.createAccessToken(user.getId(), user.getLogin());
+        String accessToken = jwtProvider.createAccessToken(Long.valueOf(user.getGithubId()), user.getGithubUsername());
         // 3.  JSON 응답 반환
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("accessToken", accessToken);
-        responseBody.put("username", user.getLogin());
+        responseBody.put("username", user.getGithubUsername());
 
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(responseBody);

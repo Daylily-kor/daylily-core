@@ -1,6 +1,7 @@
 package com.daylily.domain.auth.service;
 
 import com.daylily.domain.auth.entity.User;
+import com.daylily.domain.auth.entity.UserMapper;
 import com.daylily.domain.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     public User processOAuth2User(OAuth2User oAuth2User) {
         // 1. 파라미터로 들어온 값 중 githubId를 가져온다.
@@ -21,15 +23,18 @@ public class UserService {
     }
 
     private User saveUserFormOAuth2(OAuth2User oAuth2User) {
-        return userRepository.save(toUserEntity(oAuth2User));
+        return userRepository.save(userMapper.toEntity(oAuth2User));
     }
 
+    /**
+     * 대신 UserMapper Interface를 사용
     private User toUserEntity(OAuth2User oAuth2User) {
         return User.builder()
                 .githubId(oAuth2User.getAttribute("id"))
-                .login(oAuth2User.getAttribute("login"))
+                .githubUsername(oAuth2User.getAttribute("login"))
                 .email(oAuth2User.getAttribute("email"))
                 .githubProfileUrl(oAuth2User.getAttribute("html_url"))
                 .build();
     }
+     **/
 }

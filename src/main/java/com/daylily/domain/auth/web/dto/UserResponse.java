@@ -2,7 +2,7 @@ package com.daylily.domain.auth.web.dto;
 
 public record UserResponse(
         Integer githubId,
-        String login,
+        String githubUsername,
         String email,
         String githubProfileUrl
 ) {}
