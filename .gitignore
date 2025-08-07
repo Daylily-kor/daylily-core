@@ -19,10 +19,7 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-.idea
-.idea/gradle.xml
-.idea/misc.xml
-.idea/vcs.xml
+.idea/
 *.iws
 *.iml
 *.ipr
