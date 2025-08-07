@@ -9,6 +9,5 @@ import java.util.Optional;
 @Repository
 public interface GitHubAppRepository extends JpaRepository<GitHubApp, Long> {
 
-    Optional<GitHubApp> findTopByOrderByIdAsc();
     Optional<GitHubApp> findByAppId(Long appId);
 }
