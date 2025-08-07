@@ -88,6 +88,17 @@ tasks.named<Test>("test") {
     useJUnitPlatform()
 }
 
+tasks.withType<JavaCompile>() {
+    options.compilerArgs.addAll(listOf(
+//        "-Amapstruct.verbose=true",
+        "-Amapstruct.unmappedTargetPolicy=ERROR",
+        "-Amapstruct.suppressGeneratorTimestamp=true",
+        "-Amapstruct.suppressGeneratorVersionInfoComment=true",
+        "-Amapstruct.defaultComponentModel=spring",
+        "-Amapstruct.defaultInjectionStrategy=constructor"
+    ))
+}
+
 dependencyManagement {
     imports {
         mavenBom("org.springframework.grpc:spring-grpc-dependencies:${property("springGrpcVersion")}")
