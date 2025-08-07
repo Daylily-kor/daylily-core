@@ -23,7 +23,7 @@ public class GitHubApp {
     @Convert(converter = AesGcmStringConverter.class)
     private String webhookSecret;
 
-    @Lob
+    @Column(columnDefinition = "text")
     @Convert(converter = AesGcmStringConverter.class)
     private String pem;
 
