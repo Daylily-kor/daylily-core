@@ -1,4 +1,4 @@
-package com.daylily.domain.webhook.service;
+package com.daylily.domain.github.service;
 
 public interface PullRequestHandlerService {
 
