@@ -5,11 +5,9 @@ import com.daylily.domain.github.exception.GitHubException;
 import com.daylily.domain.github.repository.GitHubAppRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -31,13 +29,6 @@ public class WebhookSignatureVerifier {
             String signature,
             String payload
     ) {
-        public VerificationRequest(ContentCachingRequestWrapper request) throws UnsupportedEncodingException {
-            this(
-                    Long.parseLong(request.getHeader("X-GitHub-Hook-Installation-Target-ID")),
-                    request.getHeader("X-Hub-Signature-256"),
-                    new String(request.getContentAsByteArray(), request.getCharacterEncoding())
-            );
-        }
     }
 
     private static final String PREFIX = "sha256=";

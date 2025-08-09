@@ -45,6 +45,8 @@ public class GitHubAppController {
             @RequestParam("state") String state,
             @RequestParam("code") String code
     ) {
+        // CSRF 공격 방지를 위해 상태 토큰을 검증
+        // TODO: 추후 재활성화
         /*if (!stateStore.consume(state)) {
             throw new GitHubException(GitHubErrorCode.STATE_TOKEN_ERROR);
         }*/

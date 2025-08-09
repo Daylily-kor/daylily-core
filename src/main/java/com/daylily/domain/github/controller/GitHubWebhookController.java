@@ -31,8 +31,7 @@ public class GitHubWebhookController {
             @RequestHeader("X-GitHub-Event") String eventType,
             @RequestBody String payload
     ) {
-        // 이하 WebhookConfig의 Interceptor 에서 요청 헤더의 "x-hub-signature-256" 해시가 검증이 완료된 상태
-        // WebhookRequestFilter의 ContentCachingRequestWrapper 로 요청 본문을 캐싱하여 이 메서드에서 @RequestBody로 읽을 수 있음
+        // 이하 WebhookRequestFilter 에서 요청 헤더의 "x-hub-signature-256" 해시가 검증이 완료된 상태
         switch (eventType) {
             case "pull_request" -> webhookDispatcher.enqueue(eventType, payload);
             case "installation" -> gitHubAppService.handleGitHubAppInstallation(payload);
