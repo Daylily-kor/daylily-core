@@ -1,6 +1,7 @@
 package com.daylily.global.response;
 
 import com.daylily.global.response.code.BaseCode;
+import com.daylily.global.response.code.SuccessCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import org.springframework.http.ResponseEntity;
@@ -42,5 +43,9 @@ public record SuccessResponse<T>(
 
     public static ResponseEntity<SuccessResponse<Void>> of(BaseCode code) {
         return of(code, null);
+    }
+
+    public static <T> ResponseEntity<SuccessResponse<T>> ok(T data) {
+        return of(SuccessCode.OK, data);
     }
 }

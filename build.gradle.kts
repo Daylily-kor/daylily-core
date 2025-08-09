@@ -75,6 +75,9 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5") // JSON 직렬화용
 
+    // Caffeine in memory Cache
+    implementation("com.github.ben-manes.caffeine:caffeine:3.2.2")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.grpc:spring-grpc-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -83,6 +86,17 @@ dependencies {
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+tasks.withType<JavaCompile>() {
+    options.compilerArgs.addAll(listOf(
+//        "-Amapstruct.verbose=true",
+        "-Amapstruct.unmappedTargetPolicy=ERROR",
+        "-Amapstruct.suppressGeneratorTimestamp=true",
+        "-Amapstruct.suppressGeneratorVersionInfoComment=true",
+        "-Amapstruct.defaultComponentModel=spring",
+        "-Amapstruct.defaultInjectionStrategy=constructor"
+    ))
 }
 
 dependencyManagement {

@@ -1,6 +1,6 @@
-package com.daylily.domain.webhook.util;
+package com.daylily.domain.github.util;
 
-import com.daylily.domain.webhook.service.PullRequestHandlerService;
+import com.daylily.domain.github.service.PullRequestHandlerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package com.daylily.domain.github;
+package com.daylily.global.config;
 
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
