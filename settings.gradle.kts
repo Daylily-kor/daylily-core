@@ -1,1 +1,1 @@
-rootProject.name = "daylily-spring"
+rootProject.name = "daylily-core"
