@@ -68,22 +68,23 @@ public record Manifest(
                 true
         );
 
+        var url = manifestRequest.url();
         return Manifest.builder()
                 .name(manifestRequest.name())
-                .url(manifestRequest.url())
+                .url(url)
                 .hookAttributes(webhookAttributes)
-                .redirectUrl(manifestRequest.url() + "/api/app/manifest/redirect") // GitHubAppController::createGitHubApp
-                .callbackUrls(List.of("/"))
+                .redirectUrl(url + "/api/app/manifest/redirect") // GitHubAppController::createGitHubApp
+                .callbackUrls(List.of(url + "/api/app/manifest/redirect"))
                 .setupUrl("")
                 .description(manifestRequest.description())
                 .isPublic(manifestRequest.isPublic())
-                .defaultEvents(List.of("pull_request", "installation", "installation_repositories"))
+                .defaultEvents(List.of("pull_request"))
                 .defaultPermissions(Map.of(
                         "contents", "read",
                         "pull_requests", "write",
                         "metadata", "read"
                 ))
-                .requestOauthOnInstall(true)
+                .requestOauthOnInstall(false)
                 .setupOnUpdate(false)
                 .build();
     }
