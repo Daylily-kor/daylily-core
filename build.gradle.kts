@@ -72,11 +72,18 @@ dependencies {
 
     // JWT
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    implementation("com.auth0:java-jwt:4.4.0")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5") // JSON 직렬화용
 
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+
     // Caffeine in memory Cache
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.2")
+
+    // Pem key Parsing
+    implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
+    implementation("org.bouncycastle:bcpkix-jdk18on:1.78.1")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.grpc:spring-grpc-test")

@@ -2,6 +2,7 @@ package com.daylily.domain.github.service;
 
 import com.daylily.domain.github.dto.manifest.ManifestRequest;
 import com.daylily.domain.github.dto.manifest.ManifestResponse;
+import com.daylily.domain.github.web.dto.InstallationAccessTokenRes;
 
 import java.net.URI;
 
@@ -21,4 +22,6 @@ public interface GitHubAppService {
      * @param rawPayload 웹훅 페이로드
      */
     void handleGitHubAppInstallation(String rawPayload);
+
+    InstallationAccessTokenRes getAccessToken(long installationId);
 }

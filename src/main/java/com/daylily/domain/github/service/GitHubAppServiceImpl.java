@@ -11,6 +11,8 @@ import com.daylily.domain.github.exception.GitHubException;
 import com.daylily.domain.github.repository.GitHubAppRepository;
 import com.daylily.domain.github.util.ActionTypeChecker;
 import com.daylily.domain.github.util.PayloadParser;
+import com.daylily.domain.github.web.dto.InstallationAccessTokenRes;
+import com.daylily.global.jwt.JwtProvider;
 import com.daylily.global.util.StateStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ import org.kohsuke.github.GHEventPayload;
 import org.kohsuke.github.GitHub;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.net.URI;
@@ -36,6 +39,9 @@ public class GitHubAppServiceImpl implements GitHubAppService {
     private final StateStore stateStore;
     private final PayloadParser payloadParser;
     private final GitHubAppMapper mapper;
+
+    private final WebClient webClient;
+    private final JwtProvider jwtProvider;
 
     @Override
     public ManifestResponse createManifest(ManifestRequest manifestRequest) {
@@ -91,5 +97,19 @@ public class GitHubAppServiceImpl implements GitHubAppService {
                 .orElseThrow(() -> new GitHubException(GitHubErrorCode.APP_NOT_FOUND));
 
         appSecret.setInstallationId(installationId);
+    }
+
+    public InstallationAccessTokenRes getAccessToken(long installationId) {
+        GitHubApp app = repository.findByInstallationId(installationId)
+                .orElseThrow(() -> new GitHubException(GitHubErrorCode.APP_NOT_FOUND));
+
+        String appJwt = jwtProvider.createAppJwt(app.getAppId(), app.getPem());
+
+        return webClient.post()
+                .uri("/app/installations/{id}/access_tokens", installationId)
+                .headers(h -> h.setBearerAuth(appJwt))
+                .retrieve()
+                .bodyToMono(InstallationAccessTokenRes.class)
+                .block();
     }
 }

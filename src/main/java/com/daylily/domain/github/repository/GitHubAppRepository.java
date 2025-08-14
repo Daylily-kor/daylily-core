@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface GitHubAppRepository extends JpaRepository<GitHubApp, Long> {
 
     Optional<GitHubApp> findByAppId(Long appId);
+
+    Optional<GitHubApp> findByInstallationId(long installationId);
 }
