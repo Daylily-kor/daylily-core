@@ -38,11 +38,15 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/error").permitAll()
+                        .requestMatchers(
+                                "/error",
+                                "/oauth2/authorization/**",   // 로그인 시작 엔드포인트
+                                "/login/oauth2/code/**"       // OAuth 콜백
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
-                        .successHandler(oAuth2AuthenticationSuccessHandler()) // JSON 응답 전용
+                        .successHandler(new OAuth2AuthenticationSuccessHandler(userService, jwtProvider))
                 )
                 .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
                 .build();
