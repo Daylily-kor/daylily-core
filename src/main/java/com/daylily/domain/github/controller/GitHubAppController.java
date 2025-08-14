@@ -3,6 +3,8 @@ package com.daylily.domain.github.controller;
 import com.daylily.domain.github.dto.manifest.ManifestRequest;
 import com.daylily.domain.github.dto.manifest.ManifestResponse;
 import com.daylily.domain.github.service.GitHubAppService;
+import com.daylily.domain.github.web.dto.InstallationAccessTokenReq;
+import com.daylily.domain.github.web.dto.InstallationAccessTokenRes;
 import com.daylily.global.response.SuccessResponse;
 import com.daylily.global.util.StateStore;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,5 +57,12 @@ public class GitHubAppController {
         return ResponseEntity.status(HttpStatus.SEE_OTHER)
                 .location(installURI)
                 .build();
+    }
+
+    @PostMapping("/installation-token")
+    public ResponseEntity<?> createToken(@RequestBody InstallationAccessTokenReq req) {
+        System.out.println("..");
+        InstallationAccessTokenRes iat = service.getAccessToken(req.getInstallationId());
+        return ResponseEntity.ok(iat);
     }
 }
