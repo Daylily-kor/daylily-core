@@ -39,9 +39,14 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(
-                                "/error",
-                                "/oauth2/authorization/**",   // 로그인 시작 엔드포인트
-                                "/login/oauth2/code/**"       // OAuth 콜백
+                                "/",
+                                "/health",
+                                "/actuator/health",
+                                "/oauth2/authorization/**",             // OAuth 로그인 시작
+                                "/login/oauth2/code/**",                // OAuth 콜백
+                                "/api/app/manifest/**",                 // GitHub App manifest redirect/convert
+                                "/api/login/oauth2/code/github-app",    // OAuth Login 경로
+                                "/api/webhook/**"                       // GitHub 웹훅 수신
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
