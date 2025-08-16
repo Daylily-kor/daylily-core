@@ -1,6 +1,7 @@
 package com.daylily.domain.github.entity;
 
 import com.daylily.global.entity.AesGcmStringConverter;
+import com.daylily.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +11,7 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class GitHubApp {
+public class GitHubApp extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
