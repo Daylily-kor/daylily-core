@@ -1,7 +1,10 @@
-package com.daylily.domain.github.repository;
+package com.daylily.global.config;
 
 
 import com.daylily.domain.github.entity.GitHubApp;
+import com.daylily.domain.github.exception.GitHubErrorCode;
+import com.daylily.domain.github.exception.GitHubException;
+import com.daylily.domain.github.repository.GitHubAppRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +17,6 @@ import org.springframework.stereotype.Component;
 /**
  * DB에 저장된 GitHub App 자격증명(client_id/secret)을
  * 런타임 시 읽어 OAuth2 ClientRegistration을 동적으로 생성
- *
  * properties/.env 하드코딩 불필요
  * 최신(updatedAt DESC) 1건만 사용
  * 팀장 1명만 github_app table에 등록되는 거니까.. 걍 Spring data jpa 신경안씀
@@ -42,7 +44,7 @@ public class DynamicClientRegistrationRepository implements ClientRegistrationRe
 
         // 최신 1건 조회
         GitHubApp app = repo.findFirstByOrderByUpdatedAtDesc()
-                .orElseThrow(() -> new IllegalStateException("GitHub App이 아직 설치/연결되지 않았습니다."));
+                .orElseThrow(() -> new GitHubException(GitHubErrorCode.APP_NOT_FOUND));
 
         // GitHub App의 user-to-server OAuth는 OAuth Apps와 동일 엔드포인트 사용
         return ClientRegistration.withRegistrationId(REGISTRATION_ID)
@@ -58,7 +60,5 @@ public class DynamicClientRegistrationRepository implements ClientRegistrationRe
                 .userNameAttributeName("id")
                 .clientName("GitHub App")
                 .build();
-
     }
-
 }
