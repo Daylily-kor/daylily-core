@@ -6,26 +6,26 @@ import com.daylily.domain.github.exception.GitHubErrorCode;
 import com.daylily.domain.github.exception.GitHubException;
 import com.daylily.domain.github.repository.GitHubAppRepository;
 import com.daylily.global.config.GitHubConfig;
-import org.kohsuke.github.GitHub;
 import com.daylily.global.jwt.JwtProvider;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.kohsuke.github.GitHub;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
 
 @Slf4j
+@Component
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -36,6 +36,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     private final GitHubConfig.GitHubClients gh;
     private final GitHubAppRepository gitHubAppRepository;
 
+    private final RestClient gitHubRestClient;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
@@ -45,7 +47,6 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
         // 1) 사용자 저장 (id/login/avatar)
         User user = userService.processOAuth2User(oAuth2User);
-
 
         // 3) 설치 토큰 기반 공동작업자 확인 (설치에 포함된 모든 리포에 대해 검사)
         var app = gitHubAppRepository.findFirstByOrderByUpdatedAtDesc()
@@ -75,19 +76,18 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
             String instToken = instAsApp.createToken().create().getToken();
 
             // 4) 설치 토큰으로 설치 리포 목록 조회 (REST: GET /installation/repositories)
-            HttpRequest listReq = HttpRequest.newBuilder(URI.create("https://api.github.com/installation/repositories"))
-                    .GET()
+            JsonNode root = gitHubRestClient
+                    .get()
+                    .uri("/installation/repositories")
                     .header("Accept", "application/vnd.github+json")
                     .header("Authorization", "Bearer " + instToken)
-                    .build();
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, (req, resp) -> {
+                        throw new GitHubException(GitHubErrorCode.GITHUB_LIST_REPOS_ERROR);
+                    })
+                    .body(JsonNode.class);
 
-            HttpResponse<String> listResp = HttpClient.newHttpClient().send(listReq, HttpResponse.BodyHandlers.ofString());
-            if (listResp.statusCode() != 200) {
-                throw new RuntimeException("list repos failed: HTTP " + listResp.statusCode());
-            }
-
-            ObjectMapper om = new ObjectMapper();
-            JsonNode root = om.readTree(listResp.body());
+            assert root != null;
             JsonNode repos = root.path("repositories");
             for (JsonNode n : repos) {
                 String ownerName = n.path("owner").path("login").asText(null);
@@ -116,7 +116,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
         // 4) JWT 발급 → 헤더 반환
         String accessToken = jwtProvider.createAccessToken(
-                Long.valueOf(user.getGithubId()), user.getGithubUsername());
+                Long.valueOf(user.getGithubId()), user.getGithubUsername()
+        );
 
         response.setHeader("Authorization", "Bearer " + accessToken);
         response.setHeader("X-Username", user.getGithubUsername());
@@ -124,7 +125,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
-        String body = new com.fasterxml.jackson.databind.ObjectMapper()
+        String body = new ObjectMapper()
                 .createObjectNode()
                 .put("ok", true)
                 .put("username", user.getGithubUsername())

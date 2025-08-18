@@ -14,7 +14,8 @@ public enum GitHubErrorCode implements BaseCode {
 
     GITHUB_API_ERROR                 ("GITHUB-500-1", "Error calling GitHub API",              HttpStatus.BAD_GATEWAY),
     GITHUB_SECRET_VERIFICATION_FAILED("GITHUB-500-2", "Webhook signature verification failed", HttpStatus.UNAUTHORIZED),
-    STATE_TOKEN_ERROR                ("GITHUB-500-3", "State token invalid or expired",        HttpStatus.UNAUTHORIZED);
+    STATE_TOKEN_ERROR                ("GITHUB-500-3", "State token invalid or expired",        HttpStatus.UNAUTHORIZED),
+    GITHUB_LIST_REPOS_ERROR          ("GITHUB-500-4", "Error listing repositories from GitHub", HttpStatus.BAD_GATEWAY),;
 
     private final String code;
     private final String message;
