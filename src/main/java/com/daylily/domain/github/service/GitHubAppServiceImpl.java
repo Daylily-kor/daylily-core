@@ -11,7 +11,7 @@ import com.daylily.domain.github.exception.GitHubException;
 import com.daylily.domain.github.repository.GitHubAppRepository;
 import com.daylily.domain.github.util.ActionTypeChecker;
 import com.daylily.domain.github.util.PayloadParser;
-import com.daylily.global.config.GitHubConfig;
+import com.daylily.global.config.GitHubClient;
 import com.daylily.global.config.GithubJwtSigner;
 import com.daylily.global.util.StateStore;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class GitHubAppServiceImpl implements GitHubAppService {
     private final PayloadParser payloadParser;
     private final GitHubAppMapper mapper;
 
-    private final GitHubConfig.GitHubClients gh;
+    private final GitHubClient gh;
     private final GithubJwtSigner jwtSigner;
 
     @Override

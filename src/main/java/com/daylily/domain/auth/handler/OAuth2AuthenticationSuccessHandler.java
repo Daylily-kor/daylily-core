@@ -5,8 +5,9 @@ import com.daylily.domain.auth.service.UserService;
 import com.daylily.domain.github.exception.GitHubErrorCode;
 import com.daylily.domain.github.exception.GitHubException;
 import com.daylily.domain.github.repository.GitHubAppRepository;
-import com.daylily.global.config.GitHubConfig;
+import com.daylily.global.config.GitHubClient;
 import com.daylily.global.jwt.JwtProvider;
+import com.daylily.global.response.ErrorResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GitHub;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.core.Authentication;
@@ -32,11 +34,11 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     private final UserService userService;
     private final JwtProvider jwtProvider;
 
-    // 인가 확인용 의존성
-    private final GitHubConfig.GitHubClients gh;
     private final GitHubAppRepository gitHubAppRepository;
 
     private final RestClient gitHubRestClient;
+    private final GitHubClient githubClient;
+    private final ObjectMapper objectMapper;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -56,7 +58,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
             log.error("[OAuth2Success] installationId 미설정");
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\":\"installation_id_missing\"}");
+            objectMapper.writeValue(response.getWriter(), ErrorResponse.of(GitHubErrorCode.INSTALLATION_NOT_FOUND));
             return;
         }
 
@@ -64,11 +66,11 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         boolean allowed = false;
         try {
             // 1) App JWT로 앱 컨텍스트에 접근
-            String appJwt = gh.issueAppJwt(app.getAppId(), app.getPem());
-            GitHub ghAsApp = gh.asApp(appJwt);
+            String appJwt = githubClient.issueAppJwt(app.getAppId(), app.getPem());
+            GitHub ghAsApp = githubClient.asApp(appJwt);
 
             // 2) 설치 권한 클라이언트 생성 (App JWT + installationId 사용)
-            GitHub ghAsInstallation = gh.asInstallation(appJwt, app.getInstallationId());
+            GitHub ghAsInstallation = githubClient.asInstallation(appJwt, app.getInstallationId());
             log.debug("[OAuth2Success] Using installation client for installationId={}", app.getInstallationId());
 
             // 3) 설치 토큰 발급 (App 자격으로 한 번만)
@@ -93,16 +95,23 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
                 String ownerName = n.path("owner").path("login").asText(null);
                 String repoName  = n.path("name").asText(null);
                 if (ownerName == null || repoName == null) continue;
-                if (gh.hasReadAccess(appJwt, ownerName, repoName, user.getGithubUsername())) {
+                if (githubClient.hasReadAccess(appJwt, ownerName, repoName, user.getGithubUsername())) {
                     allowed = true;
                     break;
                 }
             }
+        } catch (GHFileNotFoundException e) {
+            log.error("설치 토큰을 찾을 수 없음", e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setContentType("application/json");
+            objectMapper.writeValue(response.getWriter(), ErrorResponse.of(GitHubErrorCode.INSTALLATION_NOT_FOUND));
+            return;
+
         } catch (Exception e) {
             log.error("[OAuth2Success] 설치 리포 조회/권한 확인 실패", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\":\"authz_check_failed\"}");
+            objectMapper.writeValue(response.getWriter(), ErrorResponse.of(GitHubErrorCode.GITHUB_API_ERROR));
             return;
         }
 
@@ -110,7 +119,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
             log.info("[OAuth2Success] not collaborator on any installed repo. user={}", user.getGithubUsername());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\":\"not_a_collaborator\"}");
+            objectMapper.writeValue(response.getWriter(), ErrorResponse.of(GitHubErrorCode.UNAUTHORIZED_REPOSITORY));
             return;
         }
 
@@ -125,7 +134,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
-        String body = new ObjectMapper()
+        String body = objectMapper
                 .createObjectNode()
                 .put("ok", true)
                 .put("username", user.getGithubUsername())

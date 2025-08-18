@@ -11,6 +11,8 @@ public enum GitHubErrorCode implements BaseCode {
     SECRET_NOT_FOUND     ("GITHUB-400-2", "Webhook secret not configured",        HttpStatus.NOT_FOUND),
     APP_NOT_FOUND        ("GITHUB-400-3", "GitHub App not registered",              HttpStatus.NOT_FOUND),
     INVALID_EVENT_PAYLOAD("GITHUB-400-4", "Malformed webhook payload",             HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_REPOSITORY("GITHUB-401", "Not Authrized Github repository", HttpStatus.UNAUTHORIZED),
+    INSTALLATION_NOT_FOUND("GITHUB-404", "Installation id Not Found", HttpStatus.NOT_FOUND),
 
     GITHUB_API_ERROR                 ("GITHUB-500-1", "Error calling GitHub API",              HttpStatus.BAD_GATEWAY),
     GITHUB_SECRET_VERIFICATION_FAILED("GITHUB-500-2", "Webhook signature verification failed", HttpStatus.UNAUTHORIZED),

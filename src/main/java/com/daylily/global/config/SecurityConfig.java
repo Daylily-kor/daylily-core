@@ -58,10 +58,12 @@ public class SecurityConfig {
                 .build();
     }
 
+    /**
     @Bean
     public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler(
             GitHubConfig.GitHubClients gh,
             GitHubAppRepository gitHubAppRepository) {
         return new OAuth2AuthenticationSuccessHandler(userService, jwtProvider, gh, gitHubAppRepository);
     }
+    */
 }

@@ -1,10 +1,14 @@
 package com.daylily.global.response;
 
 import com.daylily.global.response.code.BaseCode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Builder;
 import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
