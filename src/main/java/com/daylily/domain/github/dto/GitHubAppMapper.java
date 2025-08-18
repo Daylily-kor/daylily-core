@@ -9,8 +9,8 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface GitHubAppMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "appId", source = "app.id")
+    @Mapping(target = "id",             ignore = true)
+    @Mapping(target = "appId",          source = "app.id")
     @Mapping(target = "installationId", ignore = true)
     GitHubApp toEntity(GHAppFromManifest app);
 }
