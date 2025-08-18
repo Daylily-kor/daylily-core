@@ -11,6 +11,8 @@ import com.daylily.domain.github.exception.GitHubException;
 import com.daylily.domain.github.repository.GitHubAppRepository;
 import com.daylily.domain.github.util.ActionTypeChecker;
 import com.daylily.domain.github.util.PayloadParser;
+import com.daylily.global.config.GitHubClient;
+import com.daylily.global.config.GithubJwtSigner;
 import com.daylily.global.util.StateStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,9 @@ public class GitHubAppServiceImpl implements GitHubAppService {
     private final StateStore stateStore;
     private final PayloadParser payloadParser;
     private final GitHubAppMapper mapper;
+
+    private final GitHubClient gh;
+    private final GithubJwtSigner jwtSigner;
 
     @Override
     public ManifestResponse createManifest(ManifestRequest manifestRequest) {
@@ -91,5 +96,13 @@ public class GitHubAppServiceImpl implements GitHubAppService {
                 .orElseThrow(() -> new GitHubException(GitHubErrorCode.APP_NOT_FOUND));
 
         appSecret.setInstallationId(installationId);
+    }
+
+    public boolean isCollaborator(String owner, String repo, String githubLogin) {
+        var app = repository.findFirstByOrderByUpdatedAtDesc()
+                .orElseThrow(() -> new GitHubException(GitHubErrorCode.APP_NOT_FOUND));
+
+        // 한 줄로: 발급 + 설치 토큰 + 체크
+        return gh.hasReadAccess(app.getAppId(), app.getPem(), owner, repo, githubLogin);
     }
 }

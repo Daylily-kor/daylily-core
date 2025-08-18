@@ -26,15 +26,4 @@ public class UserService {
         return userRepository.save(userMapper.toEntity(oAuth2User));
     }
 
-    /**
-     * 대신 UserMapper Interface를 사용
-    private User toUserEntity(OAuth2User oAuth2User) {
-        return User.builder()
-                .githubId(oAuth2User.getAttribute("id"))
-                .githubUsername(oAuth2User.getAttribute("login"))
-                .email(oAuth2User.getAttribute("email"))
-                .githubProfileUrl(oAuth2User.getAttribute("html_url"))
-                .build();
-    }
-     **/
 }

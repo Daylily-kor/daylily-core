@@ -2,6 +2,7 @@ package com.daylily.global.config;
 
 import com.daylily.domain.auth.handler.OAuth2AuthenticationSuccessHandler;
 import com.daylily.domain.auth.service.UserService;
+import com.daylily.domain.github.repository.GitHubAppRepository;
 import com.daylily.global.exception.CustomAccessDeniedHandler;
 import com.daylily.global.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
@@ -42,23 +43,27 @@ public class SecurityConfig {
                                 "/",
                                 "/health",
                                 "/actuator/health",
-                                "/oauth2/authorization/**",             // OAuth 로그인 시작
-                                "/login/oauth2/code/**",                // OAuth 콜백
-                                "/api/app/manifest/**",                 // GitHub App manifest redirect/convert
-                                "/api/login/oauth2/code/github-app",    // OAuth Login 경로
-                                "/api/webhook/**"                       // GitHub 웹훅 수신
+                                "/oauth2/authorization/**",
+                                "/login/oauth2/code/**",
+                                "/api/app/manifest/**",
+                                "/api/login/oauth2/code/github-app",
+                                "/api/webhook/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
-                        .successHandler(new OAuth2AuthenticationSuccessHandler(userService, jwtProvider))
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
                 )
                 .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
                 .build();
     }
-    @Bean
-    public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
 
-        return new OAuth2AuthenticationSuccessHandler(userService, jwtProvider);
+    /**
+    @Bean
+    public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler(
+            GitHubConfig.GitHubClients gh,
+            GitHubAppRepository gitHubAppRepository) {
+        return new OAuth2AuthenticationSuccessHandler(userService, jwtProvider, gh, gitHubAppRepository);
     }
+    */
 }
