@@ -2,9 +2,10 @@ package com.daylily.domain.auth.handler;
 
 import com.daylily.domain.auth.entity.User;
 import com.daylily.domain.auth.service.UserService;
+import com.daylily.domain.github.exception.GitHubErrorCode;
+import com.daylily.domain.github.exception.GitHubException;
 import com.daylily.domain.github.repository.GitHubAppRepository;
 import com.daylily.global.config.GitHubConfig;
-import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import com.daylily.global.jwt.JwtProvider;
 import jakarta.servlet.ServletException;
@@ -48,7 +49,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
         // 3) 설치 토큰 기반 공동작업자 확인 (설치에 포함된 모든 리포에 대해 검사)
         var app = gitHubAppRepository.findFirstByOrderByUpdatedAtDesc()
-                .orElseThrow(() -> new IllegalStateException("GitHub App 미구성"));
+                .orElseThrow(() -> new GitHubException(GitHubErrorCode.APP_NOT_FOUND));
 
         if (app.getInstallationId() == null) {
             log.error("[OAuth2Success] installationId 미설정");
