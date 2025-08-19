@@ -4,11 +4,12 @@ import com.daylily.domain.auth.entity.User;
 import com.daylily.domain.auth.entity.UserMapper;
 import com.daylily.domain.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -16,22 +17,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    @Transactional
     public User processOAuth2User(OAuth2User oAuth2User) {
-        // 1. 파라미터로 들어온 값 중 githubId를 가져온다.
-        Integer githubId = Integer.parseInt(Objects.requireNonNull(oAuth2User.getAttribute("id")).toString());
-
-        return userRepository.findByGithubId(githubId)
-                .orElseGet(() -> saveUserFormOAuth2(oAuth2User)); // 반환값이 없을 경우 지연실행
+        Object id = oAuth2User.getAttribute("id");
+        // id가 Integer 또는 Long 클래스이어서 이렇게 처리함
+        long githubId = switch (id) {
+            case Long l -> l;
+            case Integer i -> i.longValue();
+            case null -> throw new IllegalArgumentException("GitHub ID is null");
+            default -> throw new IllegalArgumentException("Unexpected type for GitHub ID: " + id.getClass());
+        };
+        return userRepository
+                .findByGithubId(githubId) // 2. githubId로 User를 조회한다.
+                .orElseGet(() -> userRepository.save(userMapper.toEntity(oAuth2User)));
     }
-
-    private User saveUserFormOAuth2(OAuth2User oAuth2User) {
-        User user = User.builder()
-                .githubId(Integer.parseInt(Objects.requireNonNull(oAuth2User.getAttribute("id")).toString()))
-                .githubUsername(Objects.requireNonNull(oAuth2User.getAttribute("login")).toString())
-                .email(Objects.requireNonNull(oAuth2User.getAttribute("email")).toString())
-                .githubProfileUrl(Objects.requireNonNull(oAuth2User.getAttribute("html_url")).toString())
-                .build();
-        return userRepository.save(user);
-    }
-
 }

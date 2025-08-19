@@ -2,7 +2,7 @@ package com.daylily.domain.auth.controller;
 
 import com.daylily.domain.auth.entity.User;
 import com.daylily.domain.auth.entity.UserMapper;
-import com.daylily.domain.auth.web.dto.UserResponse;
+import com.daylily.domain.auth.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
