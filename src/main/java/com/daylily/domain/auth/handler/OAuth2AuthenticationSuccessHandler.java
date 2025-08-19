@@ -5,6 +5,7 @@ import com.daylily.domain.auth.service.UserService;
 import com.daylily.domain.github.exception.GitHubErrorCode;
 import com.daylily.domain.github.exception.GitHubException;
 import com.daylily.domain.github.repository.GitHubAppRepository;
+import com.daylily.domain.github.service.GitHubAppAuthService;
 import com.daylily.global.config.GitHubClient;
 import com.daylily.global.jwt.JwtProvider;
 import com.daylily.global.response.ErrorResponse;
@@ -34,6 +35,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
     private final UserService userService;
     private final JwtProvider jwtProvider;
+    private final GitHubAppAuthService gitHubAppAuthService;
 
     private final GitHubAppRepository gitHubAppRepository;
 
@@ -42,7 +44,24 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     private final ObjectMapper objectMapper;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request,
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        GitHubAppAuthService.AuthResult result = gitHubAppAuthService.authenticateGitHubUser(oAuth2User, response);
+
+        if (!result.success()) {
+            log.error("[OAuth2AuthenticationSuccessHandler] 인증 실패: {}", result.errorMessage());
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            objectMapper.writeValue(response.getWriter(), ErrorResponse.of(GitHubErrorCode.UNAUTHORIZED_REPOSITORY, result.errorMessage()));
+            return;
+        }
+
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.sendRedirect("http://localhost:3000/auth/callback?ok=true");
+    }
+
+    //    @Override
+    public void __onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 

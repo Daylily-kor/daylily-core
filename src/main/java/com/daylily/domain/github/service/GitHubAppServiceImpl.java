@@ -97,12 +97,4 @@ public class GitHubAppServiceImpl implements GitHubAppService {
 
         appSecret.setInstallationId(installationId);
     }
-
-    public boolean isCollaborator(String owner, String repo, String githubLogin) {
-        var app = repository.findFirstByOrderByUpdatedAtDesc()
-                .orElseThrow(() -> new GitHubException(GitHubErrorCode.APP_NOT_FOUND));
-
-        // 한 줄로: 발급 + 설치 토큰 + 체크
-        return gh.hasReadAccess(app.getAppId(), app.getPem(), owner, repo, githubLogin);
-    }
 }

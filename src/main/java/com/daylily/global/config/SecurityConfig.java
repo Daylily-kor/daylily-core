@@ -45,6 +45,7 @@ public class SecurityConfig {
                                 "/oauth2/authorization/**",
                                 "/login/oauth2/code/**",
                                 "/api/app/manifest/**",
+                                "/api/app/install/oauth/callback",
                                 "/api/webhook/**"
                         ).permitAll()
                         .anyRequest().authenticated()

@@ -1,8 +1,7 @@
-package com.daylily.domain.auth.web.controller;
+package com.daylily.domain.auth.controller;
 
 import com.daylily.domain.auth.entity.User;
 import com.daylily.domain.auth.entity.UserMapper;
-import com.daylily.domain.auth.service.UserService;
 import com.daylily.domain.auth.web.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

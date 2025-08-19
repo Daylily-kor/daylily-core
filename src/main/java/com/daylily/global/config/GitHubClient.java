@@ -90,6 +90,15 @@ public class GitHubClient {
         return jwt;
     }
 
+    public GitHub asInstallationFromGitHubAppEntity(com.daylily.domain.github.entity.GitHubApp app) {
+        var installationId = app.getInstallationId();
+        if (installationId == null) {
+            log.error("[GitHubClients] Installation ID is not set for app {}", app.getAppId());
+            throw new GitHubException(GitHubErrorCode.INSTALLATION_NOT_FOUND);
+        }
+        return asInstallation(app.getAppId(), app.getPem(), app.getInstallationId());
+    }
+
     // AppId+PEM 으로 앱 클라이언트
     public GitHub asApp(long appId, String pem) { return asApp(issueAppJwt(appId, pem)); }
 

@@ -2,17 +2,21 @@ package com.daylily.domain.github.controller;
 
 import com.daylily.domain.github.dto.manifest.ManifestRequest;
 import com.daylily.domain.github.dto.manifest.ManifestResponse;
+import com.daylily.domain.github.service.GitHubAppAuthService;
 import com.daylily.domain.github.service.GitHubAppService;
 import com.daylily.global.response.SuccessResponse;
 import com.daylily.global.util.StateStore;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.net.URI;
 
 @RestController
@@ -23,6 +27,7 @@ public class GitHubAppController {
 
     private final GitHubAppService service;
     private final StateStore stateStore;
+    private final GitHubAppAuthService gitHubAppAuthService;
 
     @Operation(
             summary = "GitHub App Manifest JSON 생성",
@@ -55,5 +60,23 @@ public class GitHubAppController {
         return ResponseEntity.status(HttpStatus.SEE_OTHER)
                 .location(installURI)
                 .build();
+    }
+
+    @GetMapping("/install/oauth/callback")
+    public void handleInstallationOauthCallback(
+            @RequestParam String code,
+            @RequestParam(required = false) String state,
+            HttpServletResponse response
+    ) throws IOException {
+        OAuth2User oAuth2User = gitHubAppAuthService.exchangeAccessToken(code);
+        GitHubAppAuthService.AuthResult result = gitHubAppAuthService.authenticateGitHubUser(oAuth2User, response);
+
+        if (!result.success()) {
+            // 인증 실패 시 에러 메시지를 클라이언트에 전달
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        } else {
+            // 인증 성공 시 JWT 토큰을 쿠키에 저장하고 리다이렉트
+            response.sendRedirect("http://localhost:3000");
+        }
     }
 }

@@ -17,7 +17,7 @@ public interface UserMapper {
      * 명확한 이름으로 변경
      */
     @Mapping(target = "githubId",           expression = "java((Integer) oAuth2User.getAttribute(\"id\"))")
-    @Mapping(target = "githubUsername",              expression = "java((String) oAuth2User.getAttribute(\"login\"))")
+    @Mapping(target = "githubUsername",     expression = "java((String) oAuth2User.getAttribute(\"login\"))")
     @Mapping(target = "email",              expression = "java((String) oAuth2User.getAttribute(\"email\"))")
     @Mapping(target = "githubProfileUrl",   expression = "java((String) oAuth2User.getAttribute(\"html_url\"))")
     User toEntity(OAuth2User oAuth2User);
