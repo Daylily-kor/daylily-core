@@ -11,6 +11,7 @@ import com.daylily.global.response.ErrorResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -128,18 +129,18 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
                 Long.valueOf(user.getGithubId()), user.getGithubUsername()
         );
 
-        response.setHeader("Authorization", "Bearer " + accessToken);
-        response.setHeader("X-Username", user.getGithubUsername());
-        response.setHeader("Access-Control-Expose-Headers", "Authorization,X-Username");
+        Cookie jwtCookie = new Cookie("access_token", accessToken);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(60 * 60); // 1 hour
+        response.addCookie(jwtCookie);
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("application/json");
-        String body = objectMapper
-                .createObjectNode()
-                .put("ok", true)
-                .put("username", user.getGithubUsername())
-                .put("github_profile_url", user.getGithubProfileUrl())
-                .toString();
-        response.getWriter().write(body);
+        response.sendRedirect("http://localhost:3000/auth/callback?ok=true");
+
+//        response.setHeader("Authorization", "Bearer " + accessToken);
+//        response.setHeader("X-Username", user.getGithubUsername());
+//        response.setHeader("Access-Control-Expose-Headers", "Authorization,X-Username");
+
+
     }
 }

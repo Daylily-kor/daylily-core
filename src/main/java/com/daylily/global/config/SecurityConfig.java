@@ -1,10 +1,7 @@
 package com.daylily.global.config;
 
 import com.daylily.domain.auth.handler.OAuth2AuthenticationSuccessHandler;
-import com.daylily.domain.auth.service.UserService;
-import com.daylily.domain.github.repository.GitHubAppRepository;
 import com.daylily.global.exception.CustomAccessDeniedHandler;
-import com.daylily.global.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,19 +14,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.CorsConfigurationSource;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
-
-import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final CustomAccessDeniedHandler accessDeniedHandler;
-    private final UserService userService;
-    private final JwtProvider jwtProvider;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -55,7 +45,6 @@ public class SecurityConfig {
                                 "/oauth2/authorization/**",
                                 "/login/oauth2/code/**",
                                 "/api/app/manifest/**",
-                                "/api/login/oauth2/code/github-app",
                                 "/api/webhook/**"
                         ).permitAll()
                         .anyRequest().authenticated()
@@ -66,13 +55,4 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
                 .build();
     }
-
-    /**
-    @Bean
-    public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler(
-            GitHubConfig.GitHubClients gh,
-            GitHubAppRepository gitHubAppRepository) {
-        return new OAuth2AuthenticationSuccessHandler(userService, jwtProvider, gh, gitHubAppRepository);
-    }
-    */
 }

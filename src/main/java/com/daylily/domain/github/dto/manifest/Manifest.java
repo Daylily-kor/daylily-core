@@ -74,7 +74,7 @@ public record Manifest(
                 .url(url)
                 .hookAttributes(webhookAttributes)
                 .redirectUrl(url + "/api/app/manifest/redirect") // GitHubAppController::createGitHubApp
-                .callbackUrls(List.of(url + "/api/app/manifest/redirect"))
+                .callbackUrls(List.of(url + "/login/oauth2/code/github-app"))
                 .setupUrl("")
                 .description(manifestRequest.description())
                 .isPublic(manifestRequest.isPublic())
@@ -84,7 +84,7 @@ public record Manifest(
                         "pull_requests", "write",
                         "metadata", "read"
                 ))
-                .requestOauthOnInstall(false)
+                .requestOauthOnInstall(true)
                 .setupOnUpdate(false)
                 .build();
     }
