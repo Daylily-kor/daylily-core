@@ -130,7 +130,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         );
 
         Cookie jwtCookie = new Cookie("access_token", accessToken);
-        jwtCookie.setHttpOnly(true);
+//        jwtCookie.setHttpOnly(true);
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(60 * 60); // 1 hour
         response.addCookie(jwtCookie);
