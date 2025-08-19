@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -21,13 +20,12 @@ import java.io.IOException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@PropertySource("classpath:daylily.properties")
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final GitHubAppAuthService gitHubAppAuthService;
     private final ObjectMapper objectMapper;
 
-    @Value("${daylily.login.redirect-url")
+    @Value("${daylily.login.redirect-url}")
     private String redirectUri;
 
     @Override

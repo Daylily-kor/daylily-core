@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -28,7 +27,6 @@ import java.net.URI;
 @RequestMapping("/api/app")
 @RequiredArgsConstructor
 @Tag(name = "GitHub App", description = "GitHub App Manifest 관련 API")
-@PropertySource("classpath:daylily.properties")
 public class GitHubAppController {
 
     private final GitHubAppService service;
@@ -36,7 +34,7 @@ public class GitHubAppController {
     private final GitHubAppAuthService gitHubAppAuthService;
     private final GitHubAppInstallationService gitHubAppInstallationService;
 
-    @Value("${daylily.login.redirect-url")
+    @Value("${daylily.login.redirect-url}")
     private String redirectUri;
 
     @Operation(
