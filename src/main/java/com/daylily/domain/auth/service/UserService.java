@@ -30,9 +30,9 @@ public class UserService {
 
         User user = User.builder()
                 .githubId(githubId)
-                .githubProfileUrl(oAuth2User.getAttribute("githubProfileUrl"))
+                .githubProfileUrl(oAuth2User.getAttribute("html_url"))
                 .email(oAuth2User.getAttribute("email"))
-                .githubUsername(oAuth2User.getAttribute("githubUsername"))
+                .githubUsername(oAuth2User.getAttribute("login"))
                 .build();
 
         return userRepository
