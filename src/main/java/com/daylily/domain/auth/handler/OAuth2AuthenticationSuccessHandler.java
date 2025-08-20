@@ -39,7 +39,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 //            response.addCookie(result.jwtCookie());
 //            response.setHeader("Access-Control-Allow-Credentials", "true");
 //            response.setHeader("Access-Control-Allow-Origin", "*");
-            response.sendRedirect(redirectUri);
+            response.sendRedirect(redirectUri + "?state=" + result.state().toString());
         }
         else {
             log.error("[OAuth2AuthenticationSuccessHandler] 인증 실패: {}", result.errorMessage());

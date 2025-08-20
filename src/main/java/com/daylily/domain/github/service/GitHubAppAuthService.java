@@ -10,7 +10,6 @@ import com.daylily.domain.github.repository.GitHubAppRepository;
 import com.daylily.global.jwt.JwtProvider;
 import com.daylily.global.util.StateStore;
 import com.fasterxml.jackson.databind.JsonNode;
-import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kohsuke.github.GHRepository;
@@ -36,11 +35,12 @@ public class GitHubAppAuthService {
 
     public record AuthResult(
             boolean success,
-            Cookie jwtCookie,
+//            Cookie jwtCookie,
+            UUID state,
             String errorMessage
     ) {
-        public static AuthResult success(Cookie jwtCookie) {
-            return new AuthResult(true, jwtCookie, null);
+        public static AuthResult success(UUID state) {
+            return new AuthResult(true, state, null);
         }
 
         public static AuthResult failure(String errorMessage) {
@@ -66,16 +66,16 @@ public class GitHubAppAuthService {
         }
 
         String accessToken = jwtProvider.createAccessToken(user.getGithubId(), user.getGithubUsername());
-        String state = UUID.randomUUID().toString();
-        stateStore.saveJwt(state, accessToken, Duration.ofMinutes(5));
+        UUID state = UUID.randomUUID();
+        stateStore.saveJwt(state.toString(), accessToken, Duration.ofMinutes(5));
 
-        Cookie jwtCookie = new Cookie("DAYLILY_JWT", accessToken);
-        jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(60 * 60); // 1 hour
-        jwtCookie.setHttpOnly(false);
-        jwtCookie.setSecure(true);
-        jwtCookie.setAttribute("SameSite", "None");
-        return AuthResult.success(jwtCookie);
+//        Cookie jwtCookie = new Cookie("DAYLILY_JWT", accessToken);
+//        jwtCookie.setPath("/");
+//        jwtCookie.setMaxAge(60 * 60); // 1 hour
+//        jwtCookie.setHttpOnly(false);
+//        jwtCookie.setSecure(true);
+//        jwtCookie.setAttribute("SameSite", "None");
+        return AuthResult.success(state);
     }
 
     @Transactional(readOnly = true)
