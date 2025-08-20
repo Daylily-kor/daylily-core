@@ -37,7 +37,6 @@ public class DynamicClientRegistrationRepository implements ClientRegistrationRe
     @Override
     @Transactional
     public ClientRegistration findByRegistrationId(String registrationId) {
-        log.debug("[OAuth] findByRegistrationId called: {}", registrationId);
         if (!REGISTRATION_ID.equals(registrationId)) {
             return null;
         }

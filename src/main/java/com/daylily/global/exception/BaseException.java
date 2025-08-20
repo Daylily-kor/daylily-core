@@ -11,4 +11,24 @@ public class BaseException extends RuntimeException {
         super(errorCode.message());
         this.errorCode = errorCode;
     }
+
+    public BaseException(BaseCode errorCode, String customMessage) {
+        super(customMessage);
+        this.errorCode = new BaseCode() {
+            @Override
+            public String code() {
+                return errorCode.code();
+            }
+
+            @Override
+            public String message() {
+                return customMessage;
+            }
+
+            @Override
+            public int status() {
+                return errorCode.status();
+            }
+        };
+    }
 }

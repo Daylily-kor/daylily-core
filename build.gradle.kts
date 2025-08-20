@@ -71,9 +71,12 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
 
     // JWT
-    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5") // JSON 직렬화용
+    implementation("io.jsonwebtoken:jjwt-api:0.12.7")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.7")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.7") // JSON 직렬화용
+
+    // Bouncy Castle for PEM parsing
+    implementation("org.bouncycastle:bcprov-jdk18on:1.81")
 
     // Caffeine in memory Cache
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.2")

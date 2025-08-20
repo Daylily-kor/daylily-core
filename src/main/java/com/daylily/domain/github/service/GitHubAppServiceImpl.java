@@ -1,24 +1,17 @@
 package com.daylily.domain.github.service;
 
-import com.daylily.domain.github.action_type.InstallationActionType;
 import com.daylily.domain.github.dto.GitHubAppMapper;
 import com.daylily.domain.github.dto.manifest.Manifest;
 import com.daylily.domain.github.dto.manifest.ManifestRequest;
 import com.daylily.domain.github.dto.manifest.ManifestResponse;
-import com.daylily.domain.github.entity.GitHubApp;
 import com.daylily.domain.github.exception.GitHubErrorCode;
 import com.daylily.domain.github.exception.GitHubException;
 import com.daylily.domain.github.repository.GitHubAppRepository;
-import com.daylily.domain.github.util.ActionTypeChecker;
 import com.daylily.domain.github.util.PayloadParser;
-import com.daylily.global.config.GitHubClient;
-import com.daylily.global.config.GithubJwtSigner;
 import com.daylily.global.util.StateStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kohsuke.github.GHAppFromManifest;
-import org.kohsuke.github.GHAppInstallation;
-import org.kohsuke.github.GHEventPayload;
 import org.kohsuke.github.GitHub;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,9 +32,6 @@ public class GitHubAppServiceImpl implements GitHubAppService {
     private final PayloadParser payloadParser;
     private final GitHubAppMapper mapper;
 
-    private final GitHubClient gh;
-    private final GithubJwtSigner jwtSigner;
-
     @Override
     public ManifestResponse createManifest(ManifestRequest manifestRequest) {
         var manifest = Manifest.withManifestRequest(manifestRequest);
@@ -56,20 +46,18 @@ public class GitHubAppServiceImpl implements GitHubAppService {
     @Transactional
     @Override
     public URI createGitHubApp(String code) {
-        // GitHub Manifest flow로부터 받은 임시 코드를 사용하여 GitHub App을 생성
+        // GitHub Manifest flow 로부터 받은 임시 코드를 사용하여 GitHub App을 생성
         GHAppFromManifest app;
         try {
             app = GitHub.connectAnonymously().createAppFromManifest(code);
         } catch (IOException e) {
-            throw new GitHubException(GitHubErrorCode.GITHUB_API_ERROR);
+            throw new GitHubException(GitHubErrorCode.GITHUB_API_ERROR, "Failed to create GitHub App from manifest");
         }
 
         log.debug("GitHub App created: {}", app.getSlug());
-        log.debug("- GitHub App ID: {}", app.getId());
-        log.debug("- GitHub App Client ID: {}", app.getClientId());
 
-        GitHubApp appEntity = mapper.toEntity(app);
-        repository.save(appEntity);
+        // GitHub App 정보를 저장(app id, clientId, clientSecret 등)
+        repository.save(mapper.toEntity(app));
 
         var redirectUri = URI.create("https://github.com/apps/%s/installations/new".formatted(app.getSlug()));
         log.debug("Redirect URI for GitHub App installation: {}", redirectUri);
@@ -80,7 +68,8 @@ public class GitHubAppServiceImpl implements GitHubAppService {
     @Transactional
     @Override
     public void handleGitHubAppInstallation(String rawPayload) {
-        GHEventPayload.Installation installationPayload = payloadParser.parseInstallation(rawPayload);
+        throw new UnsupportedOperationException("Installation handled from /api/app/install/oauth/callback endpoint");
+/*        GHEventPayload.Installation installationPayload = payloadParser.parseInstallation(rawPayload);
         InstallationActionType actionType = ActionTypeChecker.fromInstallationActionString(installationPayload.getAction());
 
         if (actionType != InstallationActionType.CREATED) {
@@ -92,17 +81,8 @@ public class GitHubAppServiceImpl implements GitHubAppService {
         long installationId = installation.getId();
         long appId = installation.getAppId();
 
-        GitHubApp appSecret = repository.findByAppId(appId)
-                .orElseThrow(() -> new GitHubException(GitHubErrorCode.APP_NOT_FOUND));
-
-        appSecret.setInstallationId(installationId);
-    }
-
-    public boolean isCollaborator(String owner, String repo, String githubLogin) {
-        var app = repository.findFirstByOrderByUpdatedAtDesc()
-                .orElseThrow(() -> new GitHubException(GitHubErrorCode.APP_NOT_FOUND));
-
-        // 한 줄로: 발급 + 설치 토큰 + 체크
-        return gh.hasReadAccess(app.getAppId(), app.getPem(), owner, repo, githubLogin);
+        repository.findByAppId(appId)
+                .orElseThrow(() -> new GitHubException(GitHubErrorCode.APP_NOT_FOUND))
+                .setInstallationId(installationId);*/
     }
 }

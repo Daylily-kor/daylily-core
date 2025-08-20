@@ -1,14 +1,13 @@
 package com.daylily.global.config;
 
 import com.daylily.domain.auth.handler.OAuth2AuthenticationSuccessHandler;
-import com.daylily.domain.auth.service.UserService;
-import com.daylily.domain.github.repository.GitHubAppRepository;
 import com.daylily.global.exception.CustomAccessDeniedHandler;
-import com.daylily.global.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,8 +20,6 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomAccessDeniedHandler accessDeniedHandler;
-    private final UserService userService;
-    private final JwtProvider jwtProvider;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -37,8 +34,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler) throws Exception {
         return http
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/",
                                 "/health",
@@ -46,7 +45,7 @@ public class SecurityConfig {
                                 "/oauth2/authorization/**",
                                 "/login/oauth2/code/**",
                                 "/api/app/manifest/**",
-                                "/api/login/oauth2/code/github-app",
+                                "/api/app/install/oauth/callback",
                                 "/api/webhook/**"
                         ).permitAll()
                         .anyRequest().authenticated()
@@ -57,13 +56,4 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
                 .build();
     }
-
-    /**
-    @Bean
-    public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler(
-            GitHubConfig.GitHubClients gh,
-            GitHubAppRepository gitHubAppRepository) {
-        return new OAuth2AuthenticationSuccessHandler(userService, jwtProvider, gh, gitHubAppRepository);
-    }
-    */
 }

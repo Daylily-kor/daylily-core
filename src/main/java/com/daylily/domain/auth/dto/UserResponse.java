@@ -1,4 +1,4 @@
-package com.daylily.domain.auth.web.dto;
+package com.daylily.domain.auth.dto;
 
 public record UserResponse(
         Integer githubId,

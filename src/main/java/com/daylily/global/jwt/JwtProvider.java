@@ -1,11 +1,9 @@
 package com.daylily.global.jwt;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -31,12 +29,12 @@ public class JwtProvider {
         Date expiry = new Date(now.getTime() + ACCESS_TOKEN_VALIDITY_SECONDS);
 
         return Jwts.builder()
-                .setSubject("AccessToken")
+                .subject("AccessToken")
                 .claim("userId", userId)
                 .claim("username", username)
-                .setIssuedAt(now)
-                .setExpiration(expiry)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(key)
                 .compact();
     }
 
