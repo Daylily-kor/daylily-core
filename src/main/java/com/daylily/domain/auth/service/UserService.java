@@ -27,8 +27,11 @@ public class UserService {
             case null -> throw new IllegalArgumentException("GitHub ID is null");
             default -> throw new IllegalArgumentException("Unexpected type for GitHub ID: " + id.getClass());
         };
+
+        User user = userMapper.toEntity(oAuth2User);
+        user.setGithubId(githubId);
         return userRepository
                 .findByGithubId(githubId) // 2. githubId로 User를 조회한다.
-                .orElseGet(() -> userRepository.save(userMapper.toEntity(oAuth2User)));
+                .orElseGet(() -> userRepository.save(user));
     }
 }
