@@ -70,8 +70,8 @@ public class GitHubAppAuthService {
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(60 * 60); // 1 hour
         jwtCookie.setHttpOnly(true);
-        jwtCookie.setSecure(false);
-//        jwtCookie.setAttribute("SameSite", "Lax");
+        jwtCookie.setSecure(true);
+        jwtCookie.setAttribute("SameSite", "None");
         return AuthResult.success(jwtCookie);
     }
 
