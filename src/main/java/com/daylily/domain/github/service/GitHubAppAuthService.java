@@ -2,11 +2,11 @@ package com.daylily.domain.github.service;
 
 import com.daylily.domain.auth.entity.User;
 import com.daylily.domain.auth.service.UserService;
+import com.daylily.domain.github.api.GitHubClientFactory;
 import com.daylily.domain.github.entity.GitHubApp;
 import com.daylily.domain.github.exception.GitHubErrorCode;
 import com.daylily.domain.github.exception.GitHubException;
 import com.daylily.domain.github.repository.GitHubAppRepository;
-import com.daylily.domain.github.api.GitHubClient;
 import com.daylily.global.jwt.JwtProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.Cookie;
@@ -25,7 +25,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -49,7 +52,7 @@ public class GitHubAppAuthService {
     private final JwtProvider jwtProvider;
     private final UserService userService;
     private final GitHubAppRepository gitHubAppRepository;
-    private final GitHubClient gitHubClient;
+    private final GitHubClientFactory gitHubClientFactory;
     private final RestClient gitHubRestClient;
 
     @Transactional
@@ -101,7 +104,7 @@ public class GitHubAppAuthService {
         String scope = tokenResponse.path("scope").asText();
         log.debug("[GitHubAppAuthService] GitHub User Access Token 발급 성공: expiresIn={}, scope={}", expiresIn, scope);
 
-        GitHub gh = gitHubClient.withOAuth(accessToken);
+        GitHub gh = gitHubClientFactory.withOAuth(accessToken);
         GHUser ghUser;
         String email;
         try {
@@ -133,7 +136,7 @@ public class GitHubAppAuthService {
             throw new GitHubException(GitHubErrorCode.INSTALLATION_NOT_FOUND, "Collaborator 확인 도중, GitHub App 설치 ID가 설정되어 있지 않습니다.");
         }
 
-        GitHub gh = gitHubClient.withAppInstallation(app);
+        GitHub gh = gitHubClientFactory.withAppInstallation(app);
         GHUser ghUser;
         try {
             ghUser = gh.getUser(user.getLogin());

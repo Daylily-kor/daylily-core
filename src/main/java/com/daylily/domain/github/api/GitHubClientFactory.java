@@ -3,7 +3,7 @@ package com.daylily.domain.github.api;
 import com.daylily.domain.github.entity.GitHubApp;
 import org.kohsuke.github.GitHub;
 
-public interface GitHubClient {
+public interface GitHubClientFactory {
     /**
      * User Access Token 방식으로 GitHub API에 접근합니다.
      * @param accessToken GitHub User Access Token

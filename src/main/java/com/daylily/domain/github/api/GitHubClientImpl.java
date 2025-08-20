@@ -3,96 +3,23 @@ package com.daylily.domain.github.api;
 import com.daylily.domain.github.entity.GitHubApp;
 import com.daylily.domain.github.exception.GitHubErrorCode;
 import com.daylily.domain.github.exception.GitHubException;
-import com.daylily.global.config.GithubJwtSigner;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.daylily.global.exception.BaseException;
+import com.daylily.global.response.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kohsuke.github.GHAppInstallation;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.extras.authorization.JWTTokenProvider;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.util.Base64;
-import java.util.Map;
+import java.security.GeneralSecurityException;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class GitHubClientImpl implements GitHubClient {
-
-    private final GithubJwtSigner signer;
-    private final ObjectMapper objectMapper;
-
-    private Map<String, Object> decodeJwtPayload(String jwt) throws Exception {
-        String[] parts = jwt.split("\\.");
-        if (parts.length != 3) {
-            throw new IllegalArgumentException("invalid JWT format");
-        }
-
-        byte[] json = Base64.getUrlDecoder().decode(parts[1]);
-        return objectMapper.readValue(json, new TypeReference<>() {});
-    }
-
-    private boolean isUrlSafe(String s) {
-        return s != null && s.matches("[A-Za-z0-9_-]+");
-    }
-
-    private Long extractLongValue(Object value) {
-        switch (value) {
-            case Number number -> {
-                return number.longValue();
-            }
-            case String str -> {
-                try {
-                    return Long.valueOf(str);
-                } catch (NumberFormatException e) {
-                    return null;
-                }
-            }
-            case null, default -> {
-                return null;
-            }
-        }
-    }
-
-    // AppId+PEM 으로 App JWT 발급
-    private String issueAppJwt(long appId, String pem) {
-        String jwt = signer.sign(appId, pem);
-        try {
-            String[] parts = jwt.split("\\.");
-            boolean hOk = parts.length == 3 && isUrlSafe(parts[0]);
-            boolean pOk = parts.length == 3 && isUrlSafe(parts[1]);
-            boolean sOk = parts.length == 3 && isUrlSafe(parts[2]);
-
-            Map<String, Object> payload = decodeJwtPayload(jwt);
-            Long issN = extractLongValue(payload.get("iss"));
-            Long iatN = extractLongValue(payload.get("iat"));
-            Long expN = extractLongValue(payload.get("exp"));
-            long now = Instant.now().getEpochSecond();
-
-            log.debug("[GitHubClients] App JWT minted: iss={} (expected {}), iat={}, exp={}, now={}, ttl={}s, urlSafe(h/p/s)=[{}/{}/{}]",
-                    issN, appId, iatN, expN, now, (expN != null && iatN != null ? (expN - iatN) : -1), hOk, pOk, sOk);
-
-            if (issN == null || issN != appId) {
-                log.warn("[GitHubClients] WARNING: JWT iss does not match appId (iss={}, appId={})", issN, appId);
-            }
-            if (iatN != null && expN != null && (expN - iatN) > 600) {
-                log.warn("[GitHubClients] WARNING: JWT exp-iat exceeds 10 minutes: {}s", (expN - iatN));
-            }
-            if (iatN != null && (now + 30) < iatN) {
-                log.warn("[GitHubClients] WARNING: JWT iat is in the future. clock skew? now={}, iat={}", now, iatN);
-            }
-            if (expN != null && now >= expN) {
-                log.warn("[GitHubClients] WARNING: JWT expired. now={}, exp={}", now, expN);
-            }
-        } catch (Exception e) {
-            log.warn("[GitHubClients] Failed to decode/log JWT payload: {}", e.toString());
-        }
-        return jwt;
-    }
+public class GitHubClientImpl implements GitHubClientFactory {
 
     @Override
     public GitHub withOAuth(String accessToken) {
@@ -109,11 +36,15 @@ public class GitHubClientImpl implements GitHubClient {
             throw new GitHubException(GitHubErrorCode.APP_NOT_FOUND, "GitHub API 연결에 필요한 정보 누락");
         }
 
-        String jwt = issueAppJwt(app.getAppId(), app.getPem());
         try {
+            var jwtTokenProvider = new JWTTokenProvider(String.valueOf(app.getAppId()), app.getPem());
+            // Bearer eyJhbGciOiJSUzI1NiJ9... 이기에 뒷부분만 잘라내서 씀
+            String jwt = jwtTokenProvider.getEncodedAuthorization().split(" ")[1];
             return new GitHubBuilder().withJwtToken(jwt).build();
         } catch (IOException e) {
             throw new GitHubException(GitHubErrorCode.GITHUB_API_ERROR, "GitHub API 연결 실패: " + e.getMessage());
+        } catch (GeneralSecurityException e) {
+            throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "Failed to create JWTTokenProvider");
         }
     }
 
