@@ -69,14 +69,19 @@ public record Manifest(
         );
 
         var url = manifestRequest.url();
+
+        String domain = url.split("//")[1];
+
         return Manifest.builder()
                 .name(manifestRequest.name())
                 .url(url)
                 .hookAttributes(webhookAttributes)
                 .redirectUrl(url + "/api/app/manifest/redirect") // GitHubAppController::createGitHubApp
                 .callbackUrls(List.of(
-                        url + "/login/oauth2/code/github-app",  // Spring Seucrity OAuth2 Login 처리
-                        url + "/api/app/install/oauth/callback" // 앱 설치 후 로그인 처리
+                        "http://" + domain + "/login/oauth2/code/github-app",  // Spring Seucrity OAuth2 Login 처리
+                        "https://" + domain + "/login/oauth2/code/github-app",
+                        "http://" + domain + "/api/app/install/oauth/callback", // 앱 설치 후 로그인 처리
+                        "https://" + domain + "/api/app/install/oauth/callback"
                 ))
                 .setupUrl("")
                 .description(manifestRequest.description())
