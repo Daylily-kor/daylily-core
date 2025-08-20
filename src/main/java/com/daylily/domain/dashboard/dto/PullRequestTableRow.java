@@ -14,7 +14,7 @@ public record PullRequestTableRow(
         String createdAt,
         String updatedAt,
         String containerUrl,
-        ContainerStatusType containerState, // "created", "running", "paused", "restarting", "exited", "removing", "dead"
+        ContainerStateType containerState, // "created", "running", "paused", "restarting", "exited", "removing", "dead"
         String containerStatus // Additional human-readable status of this container
 ) {
 }

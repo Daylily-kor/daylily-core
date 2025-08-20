@@ -1,6 +1,6 @@
 package com.daylily.domain.dashboard.service;
 
-import com.daylily.domain.dashboard.dto.ContainerStatusType;
+import com.daylily.domain.dashboard.dto.ContainerStateType;
 import com.daylily.domain.dashboard.dto.PullRequestTableRow;
 import com.daylily.domain.docker.client.DockerGrpcClient;
 import com.daylily.domain.github.api.GitHubClientFactory;
@@ -58,9 +58,9 @@ public class PullRequestTableServiceImpl implements PullRequestTableService {
         String commitSHA = pullRequest.getHead().getSha();
         GrpcContainerResponse containerResponse = containersByCommitSHA.getOrDefault(commitSHA, GrpcContainerResponse.getDefaultInstance());
 
-        String containerUrl = containerResponse.getContainerUrl().isEmpty() ? null : containerResponse.getContainerUrl();
-        ContainerStatusType containerStatusType = ContainerStatusType.fromString(containerResponse.getStatus());
-        String containerStatus = containerResponse.getStatus().isEmpty() ? null : containerResponse.getStatus();
+        String containerUrl = containerResponse.getContainerUrl().isEmpty() ? "" : containerResponse.getContainerUrl();
+        ContainerStateType containerState = ContainerStateType.fromString(containerResponse.getState());
+        String containerStatus = containerResponse.getStatus().isEmpty() ? "" : containerResponse.getStatus();
         try {
             return PullRequestTableRow.builder()
                     .url(pullRequest.getHtmlUrl().toURI())
@@ -71,7 +71,7 @@ public class PullRequestTableServiceImpl implements PullRequestTableService {
                     .createdAt(pullRequest.getCreatedAt().toString())
                     .updatedAt(pullRequest.getUpdatedAt().toString())
                     .containerUrl(containerUrl)
-                    .containerState(containerStatusType)
+                    .containerState(containerState)
                     .containerStatus(containerStatus)
                     .build();
         } catch (URISyntaxException | IOException e) {

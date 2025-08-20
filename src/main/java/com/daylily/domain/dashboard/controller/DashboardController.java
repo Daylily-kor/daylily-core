@@ -1,6 +1,6 @@
 package com.daylily.domain.dashboard.controller;
 
-import com.daylily.domain.dashboard.dto.ContainerStatusType;
+import com.daylily.domain.dashboard.dto.ContainerStateType;
 import com.daylily.domain.dashboard.dto.PullRequestTableResponse;
 import com.daylily.domain.dashboard.dto.PullRequestTableRow;
 import com.daylily.domain.dashboard.service.PullRequestTableService;
@@ -50,18 +50,18 @@ public class DashboardController {
     }
 
     private PullRequestTableResponse.ContainerStatusSummary calculateContainerStatusSummary(List<PullRequestTableRow> rows) {
-        Map<ContainerStatusType, Long> statusCounts = rows.stream()
+        Map<ContainerStateType, Long> stateCounts = rows.stream()
                 .collect(Collectors.groupingBy(
                         PullRequestTableRow::containerState,
                         Collectors.counting()
                 ));
 
         return PullRequestTableResponse.ContainerStatusSummary.builder()
-                .created(statusCounts.getOrDefault(ContainerStatusType.CREATED, 0L).intValue())
-                .running(statusCounts.getOrDefault(ContainerStatusType.RUNNING, 0L).intValue())
-                .paused(statusCounts.getOrDefault(ContainerStatusType.PAUSED, 0L).intValue())
-                .exited(statusCounts.getOrDefault(ContainerStatusType.EXITED, 0L).intValue())
-                .dead(statusCounts.getOrDefault(ContainerStatusType.DEAD, 0L).intValue())
+                .created(stateCounts.getOrDefault(ContainerStateType.CREATED, 0L).intValue())
+                .running(stateCounts.getOrDefault(ContainerStateType.RUNNING, 0L).intValue())
+                .paused(stateCounts.getOrDefault(ContainerStateType.PAUSED, 0L).intValue())
+                .exited(stateCounts.getOrDefault(ContainerStateType.EXITED, 0L).intValue())
+                .dead(stateCounts.getOrDefault(ContainerStateType.DEAD, 0L).intValue())
                 .build();
     }
 }
