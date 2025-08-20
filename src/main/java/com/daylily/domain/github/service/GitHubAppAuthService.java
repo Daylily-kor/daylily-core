@@ -69,7 +69,7 @@ public class GitHubAppAuthService {
         Cookie jwtCookie = new Cookie("DAYLILY_JWT", accessToken);
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(60 * 60); // 1 hour
-        jwtCookie.setHttpOnly(true);
+        jwtCookie.setHttpOnly(false);
         jwtCookie.setSecure(true);
         jwtCookie.setAttribute("SameSite", "None");
         return AuthResult.success(jwtCookie);
