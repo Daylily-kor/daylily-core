@@ -20,6 +20,7 @@ public class UserService {
     @Transactional
     public User processOAuth2User(OAuth2User oAuth2User) {
         Object id = oAuth2User.getAttribute("id");
+
         // id가 Integer 또는 Long 클래스이어서 이렇게 처리함
         long githubId = switch (id) {
             case Long l -> l;

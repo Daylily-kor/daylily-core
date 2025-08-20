@@ -129,7 +129,7 @@ public class GitHubAppAuthService {
     }
 
     @Transactional(readOnly = true)
-    protected boolean isCollaboratorOfApp(User user) {
+    public boolean isCollaboratorOfApp(User user) {
         GitHubApp app = gitHubAppRepository.findFirstByOrderByUpdatedAtDesc()
                 .orElseThrow(() -> new GitHubException(GitHubErrorCode.APP_NOT_FOUND));
 

@@ -1,5 +1,6 @@
 package com.daylily.domain.auth.handler;
 
+import com.daylily.domain.auth.service.UserService;
 import com.daylily.domain.github.exception.GitHubErrorCode;
 import com.daylily.domain.github.service.GitHubAppAuthService;
 import com.daylily.global.response.ErrorResponse;
@@ -24,6 +25,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
     private final GitHubAppAuthService gitHubAppAuthService;
     private final ObjectMapper objectMapper;
+    private final UserService userService;
 
     @Value("${daylily.login.redirect-url}")
     private String redirectUri;

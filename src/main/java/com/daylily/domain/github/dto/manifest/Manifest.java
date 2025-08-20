@@ -79,10 +79,10 @@ public record Manifest(
                 .hookAttributes(webhookAttributes)
                 .redirectUrl(url + "/api/app/manifest/redirect") // GitHubAppController::createGitHubApp
                 .callbackUrls(List.of(
-                        "http://" + domain + "/login/oauth2/code/github-app",  // Spring Seucrity OAuth2 Login 처리
-                        "https://" + domain + "/login/oauth2/code/github-app",
                         "http://" + domain + "/api/app/install/oauth/callback", // 앱 설치 후 로그인 처리
-                        "https://" + domain + "/api/app/install/oauth/callback"
+                        "https://" + domain + "/api/app/install/oauth/callback",
+                        "http://" + domain + "/login/oauth2/code/github-app",  // Spring Seucrity OAuth2 Login 처리
+                        "https://" + domain + "/login/oauth2/code/github-app"
                 ))
                 .setupUrl("")
                 .description(manifestRequest.description())
