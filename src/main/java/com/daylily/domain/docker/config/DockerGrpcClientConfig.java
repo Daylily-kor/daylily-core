@@ -1,13 +1,12 @@
 package com.daylily.domain.docker.config;
 
+import com.daylily.proto.service.DockerServiceGrpc;
+import com.daylily.proto.service.DockerServiceGrpc.DockerServiceBlockingStub;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.grpc.client.GrpcChannelFactory;
-
-import com.daylily.proto.service.DockerServiceGrpc;
-import com.daylily.proto.service.DockerServiceGrpc.DockerServiceBlockingStub;
 
 @Configuration
 @PropertySource("classpath:daylily.properties")

@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -26,6 +27,7 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/app")
 @RequiredArgsConstructor
+@PropertySource("classpath:daylily.properties")
 @Tag(name = "GitHub App", description = "GitHub App Manifest 관련 API")
 public class GitHubAppController {
 

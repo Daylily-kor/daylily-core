@@ -2,7 +2,6 @@ package com.daylily.domain.github.config;
 
 import com.daylily.domain.github.exception.GitHubException;
 import com.daylily.domain.github.util.WebhookSignatureVerifier;
-import com.daylily.domain.github.util.WebhookSignatureVerifier.VerificationRequest;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletException;
@@ -38,7 +37,7 @@ public class WebhookRequestFilter extends OncePerRequestFilter {
         }
 
         @Override
-        public ServletInputStream getInputStream() throws IOException {
+        public ServletInputStream getInputStream() {
             var byteArrayInputStream = new ByteArrayInputStream(body);
             return new ServletInputStream() {
                 @Override
@@ -53,11 +52,10 @@ public class WebhookRequestFilter extends OncePerRequestFilter {
 
                 @Override
                 public void setReadListener(ReadListener listener) {
-
                 }
 
                 @Override
-                public int read() throws IOException {
+                public int read() {
                     return byteArrayInputStream.read();
                 }
             };
@@ -77,9 +75,13 @@ public class WebhookRequestFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         if (!request.getRequestURI().startsWith("/api/webhook")) {
             filterChain.doFilter(request, response);
-            return;
         }
+        else {
+            validateWebhook(request, response, filterChain);
+        }
+    }
 
+    private void validateWebhook(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         byte[] body = request.getInputStream().readAllBytes();
         String charset = Optional.ofNullable(request.getCharacterEncoding()).orElse("UTF-8");
         String payload = new String(body, charset);
@@ -87,17 +89,13 @@ public class WebhookRequestFilter extends OncePerRequestFilter {
         String signature = request.getHeader("X-Hub-Signature-256");
         Long targetId = Long.parseLong(request.getHeader("X-GitHub-Hook-Installation-Target-ID"));
         try {
-            verifier.verify(new VerificationRequest(
-                    targetId,
-                    signature,
-                    payload
-            ));
+            verifier.verify(targetId, signature, payload);
         } catch (GitHubException e) {
             String deliveryId = request.getHeader("X-GitHub-Delivery");
             String eventType = request.getHeader("X-GitHub-Event");
             log.error("Webhook verification failed for delivery ID: {}, event type: {}, target ID: {}",
                     deliveryId, eventType, targetId, e);
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid webhook signature");
         }
 
         HttpServletRequest wrappedRequest = new CachedBodyHttpServletRequest(request, body);

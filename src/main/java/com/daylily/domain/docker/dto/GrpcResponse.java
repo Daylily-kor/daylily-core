@@ -5,22 +5,7 @@ package com.daylily.domain.docker.dto;
  */
 public abstract class GrpcResponse {
 
-    public record BuildImageResponse(
-            String imageId,
-            String imageName,
-            String imageTag
-    ) {
-
-    }
-
-    public record RunContainerResponse(
-            String containerId,
-            String containerName,
-            String status
-    ) {
-
-    }
-
+    // Swagger에서 GrpcDockerVersionResponse 표시 안되는 문제때문에 DTO 레코드 별도로 작성
     public record DockerVersionResponse(
             String version,
             String apiVersion,

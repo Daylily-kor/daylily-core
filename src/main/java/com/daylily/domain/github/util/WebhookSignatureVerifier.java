@@ -18,19 +18,6 @@ import java.util.HexFormat;
 @RequiredArgsConstructor
 public class WebhookSignatureVerifier {
 
-    /**
-     * GitHub Webhook 요청의 유효성을 검증하기 위한 요청 정보입니다.
-     * @param targetId 웹훅을 보낸 GitHub App의 ID
-     * @param signature 웹훅 요청의 헤더에 포함된 X-Hub-Signature-256 값
-     * @param payload 웹훅 요청의 본문(payload) 내용
-     */
-    public record VerificationRequest(
-            Long targetId,
-            String signature,
-            String payload
-    ) {
-    }
-
     private static final String PREFIX = "sha256=";
 
     private final GitHubAppRepository repository;
@@ -39,18 +26,16 @@ public class WebhookSignatureVerifier {
      * signatureHeader와 DB에 저장된 webhook secret + payload의 HMAC-SHA256 해시값을 비교하여
      * GitHub Webhook 요청의 유효성을 검증합니다.
      */
-    public void verify(VerificationRequest request) {
-        String signature = request.signature();
-
+    public void verify(Long targetId, String signature, String payload) {
         if (signature == null || !signature.startsWith(PREFIX)) {
             throw new GitHubException(GitHubErrorCode.INVALID_HEADER_SECRET);
         }
 
-        String secret = repository.findByAppId(request.targetId())
+        String secret = repository.findByAppId(targetId)
                 .orElseThrow(() -> new GitHubException(GitHubErrorCode.SECRET_NOT_FOUND))
                 .getWebhookSecret();
 
-        String expectedSignature = PREFIX + hmacHex(secret, request.payload());
+        String expectedSignature = PREFIX + hmacHex(secret, payload);
         if (!MessageDigest.isEqual(expectedSignature.getBytes(StandardCharsets.UTF_8), signature.getBytes(StandardCharsets.UTF_8))) {
             throw new GitHubException(GitHubErrorCode.INVALID_HEADER_SECRET);
         }
