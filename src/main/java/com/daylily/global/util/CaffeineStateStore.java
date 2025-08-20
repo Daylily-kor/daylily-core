@@ -17,13 +17,28 @@ public class CaffeineStateStore implements StateStore {
             .maximumSize(1_000)                               // 최대 1,000개 저장
             .build();
 
+    private final Cache<String, String> jwtCache = Caffeine.newBuilder()
+            .expireAfterWrite(5, TimeUnit.MINUTES) // JWT 유효 기간 5분
+            .maximumSize(1_000)                     // 최대 1,000개 저장
+            .build();
+
     @Override
     public void save(String state, Duration ttl) {
         cache.put(state, Boolean.TRUE);
     }
 
     @Override
+    public void saveJwt(String state, String jwt, Duration ttl) {
+        jwtCache.put(state, jwt);
+    }
+
+    @Override
     public boolean consume(String state) {
         return cache.asMap().remove(state) != null;
+    }
+
+    @Override
+    public String consumeJwt(String state) {
+        return jwtCache.asMap().remove(state);
     }
 }

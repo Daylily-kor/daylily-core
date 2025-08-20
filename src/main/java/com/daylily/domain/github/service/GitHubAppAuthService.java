@@ -8,6 +8,7 @@ import com.daylily.domain.github.exception.GitHubErrorCode;
 import com.daylily.domain.github.exception.GitHubException;
 import com.daylily.domain.github.repository.GitHubAppRepository;
 import com.daylily.global.jwt.JwtProvider;
+import com.daylily.global.util.StateStore;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +26,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.Duration;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -55,6 +54,8 @@ public class GitHubAppAuthService {
     private final GitHubClientFactory gitHubClientFactory;
     private final RestClient gitHubRestClient;
 
+    private final StateStore stateStore;
+
     @Transactional
     public AuthResult authenticateGitHubUser(OAuth2User oAuth2User) {
         User user = userService.processOAuth2User(oAuth2User);
@@ -65,6 +66,8 @@ public class GitHubAppAuthService {
         }
 
         String accessToken = jwtProvider.createAccessToken(user.getGithubId(), user.getGithubUsername());
+        String state = UUID.randomUUID().toString();
+        stateStore.saveJwt(state, accessToken, Duration.ofMinutes(5));
 
         Cookie jwtCookie = new Cookie("DAYLILY_JWT", accessToken);
         jwtCookie.setPath("/");

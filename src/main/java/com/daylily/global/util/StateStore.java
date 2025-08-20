@@ -10,6 +10,8 @@ public interface StateStore {
      */
     void save(String state, Duration ttl);
 
+    void saveJwt(String state, String jwt, Duration ttl);
+
     /**
      * 캐시에 저장해 둔 state 값을 지웁니다.
      * @param state 지우고 싶은 값
@@ -17,4 +19,6 @@ public interface StateStore {
      *         캐시에 state 값이 존재하지 않거나, 만료되었다면 false 를 반환합니다.
      */
     boolean consume(String state);
+
+    String consumeJwt(String state);
 }
