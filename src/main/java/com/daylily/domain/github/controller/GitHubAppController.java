@@ -94,6 +94,8 @@ public class GitHubAppController {
         // 인증 성공 시 Spring boot에서 발급하는 JWT 토큰을 쿠키에 저장하고 리다이렉트
         if (result.success()) {
             response.addCookie(result.jwtCookie());
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Allow-Origin", "*");
             response.sendRedirect(redirectUri);
         }
         else {
