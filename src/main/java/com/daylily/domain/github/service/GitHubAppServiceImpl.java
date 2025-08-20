@@ -57,7 +57,8 @@ public class GitHubAppServiceImpl implements GitHubAppService {
         log.debug("GitHub App created: {}", app.getSlug());
 
         // GitHub App 정보를 저장(app id, clientId, clientSecret 등)
-        repository.save(mapper.toEntity(app));
+        var result = repository.save(mapper.toEntity(app));
+        log.debug("GitHub App saved to repository: {}", result);
 
         var redirectUri = URI.create("https://github.com/apps/%s/installations/new".formatted(app.getSlug()));
         log.debug("Redirect URI for GitHub App installation: {}", redirectUri);

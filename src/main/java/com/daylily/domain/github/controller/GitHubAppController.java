@@ -80,6 +80,9 @@ public class GitHubAppController {
             @RequestParam(name = "setup_action")    String setupAction,
             HttpServletResponse response
     ) throws IOException {
+        log.debug("[GitHubAppController] GitHub App 설치 후 OAuth2 인증 요청: code={}, installationId={}, setupAction={}",
+                code, installationId, setupAction);
+
         // 1. GitHub 앱 설치 후 발급받은 installation_id를 저장
         // 앱 등록 과정에서 Client ID, Client Secret, Redirect URI 등을 설정하고, 설치 후 GitHub가 이 엔드포인트로 리디렉트,
         // 이후 installation_id를 사용하여 GitHub 앱의 설치 정보를 업데이트.

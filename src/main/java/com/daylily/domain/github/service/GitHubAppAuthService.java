@@ -141,6 +141,7 @@ public class GitHubAppAuthService {
         GitHub gh = gitHubClientFactory.withAppInstallation(app);
         GHUser ghUser;
         try {
+            log.debug("[GitHubAppAuthService] GitHub 사용자 정보 조회: {}", user.getLogin());
             ghUser = gh.getUser(user.getLogin());
         } catch (IOException e) {
             throw new GitHubException(GitHubErrorCode.GITHUB_API_ERROR, "GitHub 사용자 정보 조회 중 오류 발생: " + e.getMessage());
