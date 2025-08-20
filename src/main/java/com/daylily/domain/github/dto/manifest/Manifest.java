@@ -70,7 +70,8 @@ public record Manifest(
 
         var url = manifestRequest.url();
 
-        String domain = url.split("//")[1];
+//        String domain = url.split("//")[1];
+        String domain = "daylily.ataidev.cc";
 
         return Manifest.builder()
                 .name(manifestRequest.name())

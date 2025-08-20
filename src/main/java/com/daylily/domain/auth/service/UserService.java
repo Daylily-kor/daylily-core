@@ -28,8 +28,13 @@ public class UserService {
             default -> throw new IllegalArgumentException("Unexpected type for GitHub ID: " + id.getClass());
         };
 
-        User user = userMapper.toEntity(oAuth2User);
-        user.setGithubId(githubId);
+        User user = User.builder()
+                .githubId(githubId)
+                .githubProfileUrl(oAuth2User.getAttribute("githubProfileUrl"))
+                .email(oAuth2User.getAttribute("email"))
+                .githubUsername(oAuth2User.getAttribute("githubUsername"))
+                .build();
+
         return userRepository
                 .findByGithubId(githubId) // 2. githubId로 User를 조회한다.
                 .orElseGet(() -> userRepository.save(user));
