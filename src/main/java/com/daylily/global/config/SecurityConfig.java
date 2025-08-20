@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 "/actuator/health",
                                 "/oauth2/authorization/**",
                                 "/login/oauth2/code/**",
+                                "/api/auth/exchange",
                                 "/api/app/manifest/**",
                                 "/api/app/install/oauth/callback",
                                 "/api/webhook/**"
