@@ -91,6 +91,9 @@ public class GitHubAppController {
         // 3. 현재 앱을 설치 후 로그인 중인 유저가 GitHub 앱이 설치된 저장소들의 Collaborator 인지 확인(당연함)
         GitHubAppAuthService.AuthResult result = gitHubAppAuthService.authenticateGitHubUser(oAuth2User);
 
+        log.debug("[GitHubAppController] GitHub App 설치 후 OAuth2 인증 결과: {}", result);
+        log.debug("[GitHubAppController] redirect user with jwt");
+
         // 인증 성공 시 Spring boot에서 발급하는 JWT 토큰을 쿠키에 저장하고 리다이렉트
         if (result.success()) {
             response.addCookie(result.jwtCookie());
