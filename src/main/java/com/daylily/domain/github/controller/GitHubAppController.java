@@ -102,7 +102,22 @@ public class GitHubAppController {
             response.addCookie(result.jwtCookie());
             response.setHeader("Access-Control-Allow-Credentials", "true");
             response.setHeader("Access-Control-Allow-Origin", "*");
-            response.sendRedirect(redirectUri + "?jwt=" + result.jwtCookie().getValue());
+//            response.sendRedirect(redirectUri + "?jwt=" + result.jwtCookie().getValue());
+            // Return HTML that redirects after cookie is set
+            response.setContentType("text/html");
+            response.getWriter().write("""
+            <html>
+            <head><title>Redirecting...</title></head>
+            <body>
+                <script>
+                    setTimeout(() => {
+                        window.location.href = '%s';
+                    }, 100);
+                </script>
+                <p>Redirecting...</p>
+            </body>
+            </html>
+            """.formatted(redirectUri));
         }
         else {
             // 인증 실패 시 에러 메시지를 클라이언트에 전달
