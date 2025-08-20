@@ -34,7 +34,9 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         GitHubAppAuthService.AuthResult result = gitHubAppAuthService.authenticateGitHubUser(oAuth2User);
 
         if (result.success()) {
-            response.setStatus(HttpServletResponse.SC_OK);
+            response.addCookie(result.jwtCookie());
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Allow-Origin", "*");
             response.sendRedirect(redirectUri);
         }
         else {
