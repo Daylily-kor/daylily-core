@@ -65,16 +65,10 @@ public class GitHubAppAuthService {
             return AuthResult.failure("사용자 %s는 이 GitHub App의 협업자가 아닙니다.".formatted(user.getGithubUsername()));
         }
 
-        String accessToken = jwtProvider.createAccessToken(user.getGithubId(), user.getGithubUsername());
+        String accessToken = jwtProvider.createAccessToken(Long.valueOf(user.getGithubId()), user.getGithubUsername());
         UUID state = UUID.randomUUID();
         stateStore.saveJwt(state.toString(), accessToken, Duration.ofMinutes(5));
 
-//        Cookie jwtCookie = new Cookie("DAYLILY_JWT", accessToken);
-//        jwtCookie.setPath("/");
-//        jwtCookie.setMaxAge(60 * 60); // 1 hour
-//        jwtCookie.setHttpOnly(false);
-//        jwtCookie.setSecure(true);
-//        jwtCookie.setAttribute("SameSite", "None");
         return AuthResult.success(state);
     }
 
@@ -122,7 +116,7 @@ public class GitHubAppAuthService {
         }
 
         Map<String, Object> attributes = Map.of(
-                "id",       ghUser.getId(),
+                "id",       (int) ghUser.getId(),
                 "login",    ghUser.getLogin(),
                 "html_url", ghUser.getHtmlUrl().toString(),
                 "email",    email

@@ -17,7 +17,7 @@ public class User {
 
     @Setter
     @Column(unique = true, nullable = false)
-    private Long githubId;
+    private Integer githubId;
 
     private String githubUsername; // 원래는 login 이라는 이름인데, Mapper로 인해 Entity명 명확하게 지정
     private String email;

@@ -19,6 +19,10 @@ public class ExceptionHandlerLoggingAspect {
     public void logExceptionHandler(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
         if (args.length > 0 && args[0] instanceof Exception ex) {
+            if (ex.getClass().getSimpleName().equals("NoResourceFoundException")) {
+                return;
+            }
+
             log.error(">>> Exception: {}", ex.getClass().getSimpleName());
             log.error(">>> Message: {}", ex.getMessage(), ex);
         }
