@@ -18,12 +18,12 @@ public class WebConfig implements WebMvcConfigurer {
         // remove /auth/callback from http://127.0.0.1:3000/auth/callback
         String frontendUrl = loginRedirectUri.replace("/auth/callback", "");
 
-        registry.addMapping("/**") // 모든 경로
-                .allowedOriginPatterns(frontendUrl)
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")        // GET, POST, PUT, DELETE, OPTIONS 등 모든 메서드
-                .allowedHeaders("*")
-                .exposedHeaders("Set-Cookie")
-                .allowCredentials(true)
+        registry.addMapping("/**")
+                .allowedOriginPatterns("*")  // Allow all origins
+                .allowedMethods("*")         // Allow all methods
+                .allowedHeaders("*")         // Allow all headers
+                .exposedHeaders("*")         // Expose all headers
+                .allowCredentials(true)      // Keep this for cookies
                 .maxAge(3600);
     }
 }
