@@ -1,16 +1,16 @@
 name: daylily-prod
 
 services:
-  core:
-    image: nyhryan/daylily-core
-    ports:
-      - "8080:8080"
-    environment:
-      - DAYLILY_DB_URL=jdbc:postgresql://db:5432/daylily-db
-      - DAYLILY_DB_USER=${DAYLILY_DB_USER:?error}
-      - DAYLILY_DB_PASSWORD=${DAYLILY_DB_PASSWORD:?error}
-    depends_on:
-      - db
+#  core:
+#    image: nyhryan/daylily-core
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      - DAYLILY_DB_URL=jdbc:postgresql://db:5432/daylily-db
+#      - DAYLILY_DB_USER=${DAYLILY_DB_USER:?error}
+#      - DAYLILY_DB_PASSWORD=${DAYLILY_DB_PASSWORD:?error}
+#    depends_on:
+#      - db
 
   # PostgreSQL database
   db:
@@ -23,16 +23,29 @@ services:
       - POSTGRES_USER=${DAYLILY_DB_USER:?error}
       - POSTGRES_PASSWORD=${DAYLILY_DB_PASSWORD:?error}
       - POSTGRES_DB=daylily-db
+    ports:
+      - "5432:5432"
 
   traefik:
     image: traefik:v3.4
+    networks:
+      - traefik-proxy
     command:
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
+      - "--api.insecure=true"
     ports:
-      - "80:80"
-      - "8080:8080"
+      - "8081:80"   # traffic forwarding
+      - "8082:8080" # traefik dashboard (not used in production)
+    labels:
+      - "traefik.http.routers.api.rule=Host(`traefik.example.com`)"
+      - "traefik.http.routers.api.service=api@internal"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
 volumes:
   db_data:
+
+networks:
+  traefik-proxy:
+    name: traefik-proxy
